@@ -30,11 +30,3 @@ organize, and share real-world moments in green spaces around you.
 ### Prerequisites
 
 - Android Studio Hedgehog or later
-- Node.js + npm
-- MongoDB (local or remote)
-
-### Clone the repository
-
-```bash
-git clone https://github.com/your-username/parkhang.git
-cd parkhang
