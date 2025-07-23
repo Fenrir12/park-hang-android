@@ -4,11 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Parks(
-    val parkList: List<Park>,
-)
-
-@Serializable
 data class Park(
     val properties: Properties,
     val geometry: Geometry,
@@ -45,5 +40,5 @@ data class Properties(
 @Serializable
 data class Geometry(
     val type: String,
-    val coordinates: List<List<List<Double>>>, // [[[lon]], [[lat]]]
+    val coordinates: List<Double>,
 )

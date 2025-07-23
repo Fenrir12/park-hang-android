@@ -1,6 +1,6 @@
 package com.parkhang.mobile.feature.parks.datasource
 
-import com.parkhang.mobile.feature.parks.entity.Parks
+import com.parkhang.mobile.feature.parks.entity.Park
 import com.parkhang.mobile.framework.network.client.NetworkClient
 import com.parkhang.mobile.framework.network.client.model.withResult
 import io.ktor.http.HttpMethod
@@ -23,7 +23,7 @@ class ParksApi
             latitude: String,
             longitude: String,
             radius: String,
-        ): Result<Parks> =
+        ): Result<List<Park>> =
             withResult {
                 client.execute(
                     method = HttpMethod.Get,
