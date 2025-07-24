@@ -14,6 +14,8 @@ dependencies {
     implementation(projects.core.common)
 
     implementation(libs.ktor.resources)
+    implementation(libs.maps.compose)
+    implementation(libs.maps.compose.utils)
 
     testImplementation(libs.junit4)
     testImplementation(libs.kotlinx.coroutines.test)

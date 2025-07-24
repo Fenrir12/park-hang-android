@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -33,6 +34,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.google.android.gms.maps.GoogleMapOptions
@@ -83,6 +85,7 @@ fun MapScreen(
     modifier: Modifier = Modifier,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     currentLocation: LatLng? = null,
+    bottomPadding: Dp = BottomSheetDefaults.SheetPeekHeight,
 ) {
     var lastPosition by rememberSaveable { mutableStateOf(LatLng(0.0, 0.0)) }
     LaunchedEffect(currentLocation) {
@@ -104,6 +107,7 @@ fun MapScreen(
         coroutineScope = coroutineScope,
         currentLocation = currentLocation,
         onMyLocationClicked = onMyLocationClicked,
+        bottomPadding = bottomPadding,
     )
 }
 
@@ -117,6 +121,7 @@ fun MapContent(
     onRequestNearbyParks: () -> Unit,
     onMyLocationClicked: () -> Unit,
     modifier: Modifier = Modifier,
+    bottomPadding: Dp = 0.dp,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     currentLocation: LatLng? = null,
 ) {
@@ -188,7 +193,7 @@ fun MapContent(
                 Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = NO_ERROR_BOTTOM_PADDING)
+                    .padding(bottom = NO_ERROR_BOTTOM_PADDING + bottomPadding)
                     .wrapContentHeight(),
         ) {
             Image(

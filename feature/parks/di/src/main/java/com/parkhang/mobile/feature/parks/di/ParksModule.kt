@@ -18,6 +18,10 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class ParksModule {
     @Provides
+    fun providesUserLocation(): LatLong =
+        LatLong(latitude = 45.547967672732746, longitude = -73.54622861361825) // TODO: Replace with actual location fetching framework
+
+    @Provides
     fun provideParksRepository(
         parksApi: ParksApi,
         @Dispatcher(PHDispatchers.IO) ioDispatcher: CoroutineDispatcher,
@@ -31,20 +35,25 @@ class ParksModule {
                     radius = radius,
                 )
             },
+            getNearbyParksById = { parkIdList ->
+                parksApi.getNearbyParksById(parkIdList)
+            },
         )
 
     @Provides
     @Singleton
     fun providesParksStateMachine(
+        userLocation: LatLong,
         parksRepository: ParksRepository,
         @Dispatcher(PHDispatchers.DEFAULT) dispatcher: CoroutineDispatcher,
     ) = ParksStateMachine(
         scope = CoroutineScope(dispatcher),
-        getCurrentLocation = {
-            LatLong(latitude = 45.54, longitude = -73.55) // Example coordinates for San Francisco
-        },
+        getCurrentLocation = { userLocation },
         getNearbyParks = { latitude, longitude, radius ->
             parksRepository.fetchNearbyParks(latitude.toString(), longitude.toString(), radius.toString())
+        },
+        getParksById = { parkIdList ->
+            parksRepository.fetchParksById(parkIdList)
         },
     )
 }

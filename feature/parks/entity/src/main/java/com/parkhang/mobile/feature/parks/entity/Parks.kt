@@ -5,12 +5,17 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Park(
-    val properties: Properties,
-    val geometry: Geometry,
-    @SerialName("_id") val internalId: String,
-    val type: String,
+    private val properties: Properties,
+    private val geometry: Geometry,
+    @SerialName("_id") private val internalId: String,
+    private val type: String,
     val id: String,
-)
+) {
+    val name: String?
+        get() = properties.name
+    val location: LatLong
+        get() = LatLong(geometry.coordinates[1], geometry.coordinates[0])
+}
 
 @Serializable
 data class Properties(
