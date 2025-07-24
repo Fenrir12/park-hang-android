@@ -2,7 +2,6 @@ package com.parkhang.mobile.feature.parks.di.statemachine
 
 import android.util.Log
 import com.parkhang.mobile.feature.parks.entity.LatLong
-import com.parkhang.mobile.feature.parks.entity.Park
 import com.parkhang.mobile.feature.parks.entity.Pin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -18,18 +17,17 @@ import kotlinx.coroutines.flow.stateIn
 class ParksStateMachine(
     scope: CoroutineScope,
     private val getCurrentLocation: suspend () -> LatLong,
-    private val getNearbyParks: suspend (Double, Double, Int) -> List<Park>?,
+    private val getNearbyParks: suspend (Double, Double, Int) -> List<Pin>?,
 ) {
     data class UiState(
         val userLocation: LatLong? = null,
-        val parkList: List<Park> = emptyList(),
         val pinList: List<Pin> = emptyList(),
         val error: String? = null,
         val loading: Boolean = false,
     )
 
     sealed class UiIntent {
-        data class FetchParks(
+        data class FetchParkPinsNearby(
             val radius: Int,
         ) : UiIntent()
 
@@ -49,7 +47,7 @@ class ParksStateMachine(
                     )
                 }.flatMapLatest { intent ->
                     when (intent) {
-                        is UiIntent.FetchParks -> {
+                        is UiIntent.FetchParkPinsNearby -> {
                             val currentLocation = getCurrentLocation()
                             fetchParksFlow(
                                 latitude = currentLocation.latitude,
@@ -69,7 +67,6 @@ class ParksStateMachine(
                     }
                 }.scan(UiState()) { previousState, newState ->
                     previousState.copy(
-                        parkList = if (newState.parkList.isNotEmpty()) newState.parkList else previousState.parkList,
                         pinList = if (newState.pinList.isNotEmpty()) newState.pinList else previousState.pinList,
                         error = newState.error ?: previousState.error,
                         userLocation = newState.userLocation ?: previousState.userLocation,
@@ -85,17 +82,15 @@ class ParksStateMachine(
         flow {
             emit(UiState(loading = true))
             try {
-                val parksList =
+                val pinList =
                     getNearbyParks(
                         latitude,
                         longitude,
                         radius,
                     )
-                if (!parksList.isNullOrEmpty()) {
-                    val pinList = parksList.map { Pin.from(it) }
+                if (!pinList.isNullOrEmpty()) {
                     emit(
                         UiState(
-                            parkList = parksList,
                             pinList = pinList,
                             loading = false,
                             error = null,
@@ -105,8 +100,8 @@ class ParksStateMachine(
                     emit(UiState(error = "No parks found", loading = false))
                 }
             } catch (e: Exception) {
-                Log.e("ParksStateMachine", "Error fetching parks: ${e.message}", e)
-                emit(UiState(error = "Error fetching parks: ${e.message}", loading = false))
+                Log.e("ParksStateMachine", "Error fetching pins: ${e.message}", e)
+                emit(UiState(error = "Error fetching pins: ${e.message}", loading = false))
             }
         }
 

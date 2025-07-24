@@ -1,13 +1,13 @@
 package com.parkhang.mobile.feature.parks.datasource
 
-import com.parkhang.mobile.feature.parks.entity.Park
+import com.parkhang.mobile.feature.parks.entity.Pin
 import com.parkhang.mobile.framework.network.client.NetworkClient
 import com.parkhang.mobile.framework.network.client.model.withResult
 import io.ktor.http.HttpMethod
 import io.ktor.resources.Resource
 import javax.inject.Inject
 
-@Resource("/api/parks/nearby")
+@Resource("/api/pins/nearby")
 data class NearbyParks(
     val lat: String,
     val lng: String,
@@ -19,11 +19,11 @@ class ParksApi
     constructor(
         private val client: NetworkClient,
     ) {
-        suspend fun getNearbyParksList(
+        suspend fun getNearbyPinsList(
             latitude: String,
             longitude: String,
             radius: String,
-        ): Result<List<Park>> =
+        ): Result<List<Pin>> =
             withResult {
                 client.execute(
                     method = HttpMethod.Get,

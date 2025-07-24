@@ -15,7 +15,7 @@ class ParksViewModel
 
         fun fetchParks(searchRadius: Int) {
             parksStateMachine.processIntent(
-                ParksStateMachine.UiIntent.FetchParks(
+                ParksStateMachine.UiIntent.FetchParkPinsNearby(
                     radius = searchRadius,
                 ),
             )

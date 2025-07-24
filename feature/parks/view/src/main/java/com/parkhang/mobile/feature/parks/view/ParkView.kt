@@ -56,7 +56,7 @@ fun ParkView(
                     iconId = Icons.Map.Pin.Green,
                 )
             },
-        parksQuantity = uiState.parkList.size.toString(),
+        parksQuantity = uiState.pinList.size.toString(),
         cameraPositionState = cameraPositionState,
         onRequestNearbyParks = {
             viewModel.fetchParks(onGetVisibleCameraRadius(cameraPositionState))

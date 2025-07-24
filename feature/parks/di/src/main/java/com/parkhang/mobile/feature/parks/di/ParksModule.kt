@@ -25,7 +25,7 @@ class ParksModule {
         ParksRepository(
             ioDispatcher = ioDispatcher,
             getNearbyParksList = { latitude, longitude, radius ->
-                parksApi.getNearbyParksList(
+                parksApi.getNearbyPinsList(
                     latitude = latitude,
                     longitude = longitude,
                     radius = radius,
