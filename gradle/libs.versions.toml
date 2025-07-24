@@ -32,8 +32,9 @@ androidxHiltNavigationCompose = "1.2.0"
 androidxLifecycle = "2.9.2"
 androidxNavigation = "2.9.2"
 lifecycleExtensions = "2.2.0"
-
-
+maps-compose = "6.1.2"
+play-services-maps = "19.2.0"
+maps-compose-utils = "6.1.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -104,7 +105,10 @@ lifecycle-extensions = { group = "androidx.lifecycle", name = "lifecycle-extensi
 # Lifecycle Process
 androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "androidxLifecycle" }
 
-
+# Google Play Services
+maps-compose = { group = "com.google.maps.android", name = "maps-compose", version.ref = "maps-compose" }
+play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "play-services-maps" }
+maps-compose-utils = { group = "com.google.maps.android", name = "maps-compose-utils", version.ref = "maps-compose-utils" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

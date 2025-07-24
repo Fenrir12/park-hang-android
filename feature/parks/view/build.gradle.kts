@@ -1,6 +1,5 @@
 plugins {
     id("parkhang.feature.view")
-
 }
 
 android {
@@ -8,13 +7,14 @@ android {
 }
 
 dependencies {
-    //region module libraries
     implementation(projects.feature.parks.entity)
     implementation(projects.feature.parks.di)
-    implementation(projects.feature.parks.datasource)
 
     implementation(projects.core.designsystem)
-    //endregion
+
+    implementation(libs.maps.compose)
+    implementation(libs.maps.compose.utils)
+    implementation(libs.play.services.maps)
 
     testImplementation(libs.junit4)
     testImplementation(libs.kotlinx.coroutines.test)
