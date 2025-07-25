@@ -38,5 +38,6 @@ include(":framework:network:client")
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS") // This enables `projects.core.designsystem`
 include(":feature:parks:datasource")
 include(":feature:parks:entity")
+include(":core:designsystem:components")
 include(":core:common")
 include(":feature:parks:di")

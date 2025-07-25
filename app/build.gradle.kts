@@ -60,6 +60,7 @@ dependencies {
 
     //region core modules
     implementation(projects.core.designsystem)
+    implementation(projects.core.designsystem.components)
     //endregion
 
     //region framework modules

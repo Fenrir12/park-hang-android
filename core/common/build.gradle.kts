@@ -11,7 +11,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit4)
     testImplementation(libs.kotlinx.coroutines.test)
 }
