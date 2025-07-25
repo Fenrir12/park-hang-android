@@ -65,6 +65,7 @@ import com.parkhang.core.designsystem.theme.Opacity
 import com.parkhang.mobile.feature.parks.entity.PinItem
 import com.parkhang.mobile.feature.parks.view.CENTERED_ON_POSITION_DISTANCE
 import com.parkhang.mobile.feature.parks.view.NORTH_AMERICA_CAMERA_POSITION
+import com.parkhang.mobile.feature.parks.view.SHEET_PEEK_HEIGHT
 import com.parkhang.mobile.feature.parks.view.map.components.ClusterCircleContent
 import com.parkhang.mobile.feature.parks.view.map.components.MapMarker
 import kotlinx.coroutines.CoroutineScope
@@ -142,6 +143,7 @@ fun MapContent(
         GoogleMap(
             modifier =
                 modifier
+                    .padding(bottom = SHEET_PEEK_HEIGHT - Padding.Medium.L)
                     .fillMaxSize(),
             cameraPositionState = cameraPositionState,
             properties =

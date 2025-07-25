@@ -269,4 +269,4 @@ fun ParkScreenPreview() {
     )
 }
 
-private val SHEET_PEEK_HEIGHT = 300.dp
+val SHEET_PEEK_HEIGHT = 300.dp
