@@ -20,13 +20,13 @@ import com.parkhang.core.designsystem.theme.CustomColors
 
 val proximaNovaFamily =
     FontFamily(
-        Font(R.font.proxima_nova_extrabold, FontWeight.ExtraBold),
-        Font(R.font.proxima_nova_bold, FontWeight.Bold),
-        Font(R.font.proxima_nova_semibold, FontWeight.SemiBold),
-        Font(R.font.proxima_nova_regular, FontWeight.Normal),
-        Font(R.font.proxima_nova_light, FontWeight.Light),
-        Font(R.font.proxima_nova_bold_italic, FontWeight.Bold, FontStyle.Italic),
-        Font(R.font.proxima_nova_black_regular, FontWeight.Black, FontStyle.Normal),
+        Font(R.font.nunito_extrabold, FontWeight.ExtraBold),
+        Font(R.font.nunito_bold, FontWeight.Bold),
+        Font(R.font.nunito_semibold, FontWeight.SemiBold),
+        Font(R.font.nunito_regular, FontWeight.Normal),
+        Font(R.font.nunito_light, FontWeight.Light),
+        Font(R.font.nunito_bold_italic, FontWeight.Bold, FontStyle.Italic),
+        Font(R.font.nunito_black_regular, FontWeight.Black, FontStyle.Normal),
     )
 
 /**
