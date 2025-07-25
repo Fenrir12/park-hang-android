@@ -31,4 +31,4 @@ class AppModule {
         )
 }
 
-private const val BASE_URL = "https://192.168.18.2:5555/"
+private const val BASE_URL = "https://park-hang-api-dev.onrender.com/"
