@@ -1,9 +1,11 @@
 import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
+import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
 class AndroidBasePlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -17,7 +19,11 @@ class AndroidBasePlugin : Plugin<Project> {
             extensions.configure<LibraryExtension> {
                 val versionCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
-                configureKotlinAndroid(this, versionCatalog)
+                configureKotlinAndroid(
+                    commonExtension = extensions.getByType<LibraryExtension>(),
+                    kotlinExtension = extensions.getByType<KotlinAndroidProjectExtension>(),
+                    versionCatalog = versionCatalog
+                )
             }
         }
     }

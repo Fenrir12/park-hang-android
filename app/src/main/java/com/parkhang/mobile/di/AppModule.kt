@@ -12,12 +12,12 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 class AppModule {
     @Provides
-    fun providesNetworkAdaptRequestFactory(): NetworkAdaptRequestFactory =
+    fun providesNetworkAdaptRequestFactory(loadBaseUrl: LoadBaseUrl): NetworkAdaptRequestFactory =
         NetworkAdaptRequestFactory(
             loadAccessToken = {
                 "JWT_TOKEN" // TODO: Replace with actual token retrieval logic
             },
-            loadBaseUrl = { BASE_URL },
+            loadBaseUrl = { loadBaseUrl() },
         )
 
     @Provides
@@ -30,5 +30,3 @@ class AppModule {
             adaptRequest = { networkAdaptRequestFactory },
         )
 }
-
-private const val BASE_URL = "https://park-hang-api-dev.onrender.com/"

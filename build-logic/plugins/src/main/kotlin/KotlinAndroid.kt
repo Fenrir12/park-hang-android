@@ -1,12 +1,12 @@
-
 import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.artifacts.VersionCatalog
-import org.gradle.api.plugins.ExtensionAware
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
 internal fun configureKotlinAndroid(
     commonExtension: CommonExtension<*, *, *, *, *, *>,
+    kotlinExtension: KotlinAndroidProjectExtension,
     versionCatalog: VersionCatalog
 ) {
     commonExtension.apply {
@@ -20,22 +20,18 @@ internal fun configureKotlinAndroid(
             sourceCompatibility = JavaVersion.VERSION_21
             targetCompatibility = JavaVersion.VERSION_21
         }
-
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_21.toString()
-
-            freeCompilerArgs = freeCompilerArgs + listOf(
-                "-opt-in=kotlin.RequiresOptIn",
-                "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
-                "-opt-in=androidx.compose.foundation.layout.ExperimentalLayoutApi",
-                "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-                "-opt-in=kotlinx.coroutines.FlowPreview",
-                "-opt-in=androidx.compose.ui.ExperimentalComposeUiApi",
-            )
-        }
     }
-}
 
-fun CommonExtension<*, *, *, *, *, *>.kotlinOptions(block: KotlinJvmOptions.() -> Unit) {
-    (this as ExtensionAware).extensions.configure("kotlinOptions", block)
+    kotlinExtension.compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_21)
+
+        freeCompilerArgs.addAll(
+            "-opt-in=kotlin.RequiresOptIn",
+            "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
+            "-opt-in=androidx.compose.foundation.layout.ExperimentalLayoutApi",
+            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
+            "-opt-in=kotlinx.coroutines.FlowPreview",
+            "-opt-in=androidx.compose.ui.ExperimentalComposeUiApi",
+        )
+    }
 }
