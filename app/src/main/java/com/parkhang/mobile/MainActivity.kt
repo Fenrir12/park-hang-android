@@ -9,9 +9,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.parkhang.core.designsystem.theme.ParkHangTheme
 import com.parkhang.mobile.navigation.NavigationNavHost
+import com.parkhang.mobile.navigation.asTopLevelDestination
 import com.parkhang.mobile.ui.HomeView
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -23,8 +25,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             var startDestination by remember { mutableStateOf(PLACES_GRAPH_ROUTE) }
             var navController = rememberNavController()
+            val currentBackStack by navController.currentBackStackEntryAsState()
+            val currentDestination = currentBackStack?.destination
+
             ParkHangTheme {
                 HomeView(
+                    currentDestination = currentDestination?.asTopLevelDestination(),
                     navHost = { modifier ->
                         NavigationNavHost(
                             startDestination = startDestination,
