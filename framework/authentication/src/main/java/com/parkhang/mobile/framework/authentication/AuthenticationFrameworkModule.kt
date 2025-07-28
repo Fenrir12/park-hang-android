@@ -28,13 +28,11 @@ class AuthenticationFrameworkModule {
         AuthenticationFramework(
             ioDispatcher = ioDispatcher,
             onSignUp = { credentials ->
-                Log.d("AuthenticationFramework", "Signing up with credentials: $credentials")
                 authenticationClient
                     .signUp(credentials)
                     .mapCatching { payload ->
-                        Log.d("AuthenticationFramework", "Sign up successful: $payload")
+                        Log.d("AuthenticationFramework", "Sign up successful")
                         val authToken = payload.token.decodeJwt()
-                        Log.v("AuthenticationFramework", "Decoded JWT: $authToken")
                         userCredentialsDatasource.updateUserCredentials(authToken)
                         authToken.user ?: throw IllegalStateException("User not found in token")
                     }.getOrElse { throwable ->
@@ -43,13 +41,11 @@ class AuthenticationFrameworkModule {
                     }
             },
             onLogin = { credentials ->
-                Log.d("AuthenticationFramework", "Logging in with credentials: $credentials")
                 authenticationClient
                     .login(credentials)
                     .mapCatching { payload ->
-                        Log.d("AuthenticationFramework", "Sign up successful: $payload")
+                        Log.d("AuthenticationFramework", "Log in successful")
                         val authToken = payload.token.decodeJwt()
-                        Log.v("AuthenticationFramework", "Decoded JWT: $authToken")
                         userCredentialsDatasource.updateUserCredentials(authToken)
                         authToken.user ?: throw IllegalStateException("User not found in token")
                     }.getOrElse { throwable ->
@@ -61,19 +57,13 @@ class AuthenticationFrameworkModule {
                 Log.d("AuthenticationFramework", "Logging out")
             },
             getIsUserLoggedIn = {
-                Log.d("AuthenticationFramework", "Checking if user is logged in")
                 userCredentialsDatasource.getUserAuthToken().first()?.let { token ->
-                    Log.d("AuthenticationFramework", "Token found: $token")
                     val now = LocalDate.now(ZoneId.of("UTC"))
                     val expires =
                         token.expiresAt
                             .toInstant()
                             .atZone(ZoneId.of("UTC"))
                             .toLocalDate()
-                    Log.v(
-                        "AuthenticationFramework",
-                        "Valid token? accessToken=${token.accessToken}, expires=$expires, now=$now, user=${token.user}",
-                    )
                     token.accessToken.isNotEmpty() && expires.isAfter(now) && token.user != null
                 } ?: run {
                     Log.d("AuthenticationFramework", "No user credentials found, user is not logged in")

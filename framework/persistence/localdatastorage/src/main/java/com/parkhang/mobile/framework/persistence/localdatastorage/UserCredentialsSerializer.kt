@@ -1,6 +1,5 @@
 package com.parkhang.mobile.framework.persistence.localdatastorage
 
-import android.util.Log
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
 import com.parkhang.mobile.framework.persistence.usercredentialsprefs.UserCredentialsPreferences
@@ -18,9 +17,7 @@ class UserCredentialsSerializer(
 
     override suspend fun readFrom(input: InputStream): UserCredentialsPreferences =
         try {
-            UserCredentialsPreferences.parseFrom(decrypt(input)).also {
-                Log.v("TEST", "UserCredentialsSerializer readFrom: ${it.accessToken}")
-            }
+            UserCredentialsPreferences.parseFrom(decrypt(input))
         } catch (exception: Exception) {
             throw CorruptionException("Cannot read proto.", exception)
         }

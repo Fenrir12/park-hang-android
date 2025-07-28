@@ -68,8 +68,6 @@ class UserCredentialsDatasource
                                             .orZero(),
                                     ).build(),
                             ).build()
-                    }.also { it ->
-                        Log.d("UserCredentialsDatasource", "User credentials updated successfully ${it.accessToken }")
                     }
             } catch (exception: IOException) {
                 Log.e("UserCredentialsDatasource", "Error updating user credentials", exception)

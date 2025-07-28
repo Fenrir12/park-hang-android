@@ -83,7 +83,7 @@ class ParksStateMachine(
                         error = newState.error ?: previousState.error,
                         userLocation = newState.userLocation ?: previousState.userLocation,
                     )
-                }.stateIn(scope, SharingStarted.Lazily, UiState())
+                }.stateIn(scope, SharingStarted.Eagerly, UiState())
     }
 
     fun processIntent(intent: UiIntent) {

@@ -15,6 +15,7 @@ import com.parkhang.mobile.core.designsystem.components.NAVIGATION_BAR_HEIGHT_DP
 fun HomeView(
     navHost: @Composable (modifier: Modifier) -> Unit,
     currentDestination: BottomNavItem?,
+    onNavigateToMainDestination: (BottomNavItem) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -35,7 +36,7 @@ fun HomeView(
                     .align(Alignment.BottomCenter),
             bottomNavItemList = BottomNavItem.values().toList(),
             currentDestination = currentDestination,
-            onNavigationSelected = {},
+            onNavigationSelected = onNavigateToMainDestination,
         )
     }
 }

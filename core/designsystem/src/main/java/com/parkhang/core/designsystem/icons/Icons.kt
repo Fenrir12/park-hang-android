@@ -3,6 +3,10 @@ package com.parkhang.core.designsystem.icons
 import com.parkhang.core.designsystem.R
 
 object Icons {
+    object Functional {
+        val Warning = R.drawable.icons_warning
+    }
+
     object Map {
         object Pin {
             val Green: Int = R.drawable.icons_map_pin_gradient_green

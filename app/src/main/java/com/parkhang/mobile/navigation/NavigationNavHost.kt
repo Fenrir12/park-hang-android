@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.parkhang.mobile.feature.parks.view.parkScreen
+import com.parkhang.mobile.feature.profile.view.profileScreen
 
 @Composable
 fun NavigationNavHost(
@@ -18,5 +19,6 @@ fun NavigationNavHost(
         modifier = modifier,
     ) {
         parkScreen()
+        profileScreen()
     }
 }

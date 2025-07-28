@@ -56,15 +56,19 @@ android {
 dependencies {
     //region feature modules
     implementation(projects.feature.parks.view)
+    implementation(projects.feature.profile.view)
     //endregion
 
     //region core modules
     implementation(projects.core.designsystem)
     implementation(projects.core.designsystem.components)
+    implementation(projects.core.userprofile)
     //endregion
 
     //region framework modules
     implementation(projects.framework.network.client)
+    implementation(projects.framework.persistence.datasource.usercredentialspreferences)
+    implementation(projects.framework.persistence.localdatastorage)
     //endregion
 
     //region third-party libraries
