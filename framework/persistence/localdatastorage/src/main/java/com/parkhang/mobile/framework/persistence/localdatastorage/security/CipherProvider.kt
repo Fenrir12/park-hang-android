@@ -2,7 +2,6 @@ package com.parkhang.mobile.framework.persistence.localdatastorage.security
 
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import android.util.Log
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.security.KeyStore
@@ -22,14 +21,12 @@ class CipherProvider
         private val keyLock = Mutex()
 
         val encryptCipher: suspend () -> Cipher = {
-            Log.v("TEST", "Encrypt - key exists? ${keyStore.containsAlias(keyName)}")
             Cipher.getInstance(TRANSFORMATION).apply {
                 init(Cipher.ENCRYPT_MODE, getOrCreateKey())
             }
         }
 
         val decryptCipher: suspend (ByteArray) -> Cipher = { byteArray ->
-            Log.v("TEST", "Decrypt - key exists? ${keyStore.containsAlias(keyName)}")
             Cipher.getInstance(TRANSFORMATION).apply {
                 init(Cipher.DECRYPT_MODE, getOrCreateKey(), IvParameterSpec(byteArray))
             }
@@ -37,8 +34,7 @@ class CipherProvider
 
         private suspend fun getOrCreateKey(): SecretKey =
             keyLock.withLock {
-                (keyStore.getEntry(keyName, null) as? KeyStore.SecretKeyEntry)?.secretKey.also { Log.v("TEST", "Old key reused") }
-                    ?: generateKey()
+                (keyStore.getEntry(keyName, null) as? KeyStore.SecretKeyEntry)?.secretKey ?: generateKey()
             }
 
         private fun generateKey(): SecretKey =
@@ -46,7 +42,6 @@ class CipherProvider
                 .getInstance(ALGORITHM, keyStoreName)
                 .apply { init(keyGenParams) }
                 .generateKey()
-                .also { Log.v("TEST", "New key generated") }
 
         private val keyGenParams =
             KeyGenParameterSpec

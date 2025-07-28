@@ -2,7 +2,6 @@ package com.parkhang.mobile.core.designsystem.components
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -15,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -55,7 +53,6 @@ fun RowScope.BottomNavigationItem(
                     ItemIcon(
                         icon = item.icon,
                         contentDescription = item.title,
-                        isSelected = isSelected,
                     )
                 },
                 label = {
@@ -81,7 +78,6 @@ fun RowScope.BottomNavigationItem(
 private fun ItemIcon(
     @DrawableRes icon: Int,
     contentDescription: String,
-    isSelected: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -89,10 +85,6 @@ private fun ItemIcon(
         modifier = modifier,
     ) {
         Image(
-            modifier =
-                Modifier.background(
-                    color = if (isSelected) CustomColors.Primary.Green else Color.Transparent,
-                ),
             painter = painterResource(id = icon),
             contentDescription = contentDescription,
         )
