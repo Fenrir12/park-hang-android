@@ -1,6 +1,8 @@
 package com.parkhang.mobile.feature.profile.view.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement.spacedBy
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,8 +13,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,6 +32,7 @@ fun SignUpContent(
     onSignupClicked: (UserProfileInfo, String, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var dateOfBirthIsSelected by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
     val email = remember { mutableStateOf("") }
     val name = remember { mutableStateOf("") }
@@ -35,8 +40,7 @@ fun SignUpContent(
     val profileName = remember { mutableStateOf("") }
     val city = remember { mutableStateOf("") }
     val province = remember { mutableStateOf("") }
-    val gender = remember { mutableStateOf("") }
-    val dateOfBirth = remember { mutableStateOf("") }
+    var dateOfBirth = remember { mutableStateOf("") }
 
     val password = remember { mutableStateOf("") }
     val confirmPassword = remember { mutableStateOf("") }
@@ -59,19 +63,27 @@ fun SignUpContent(
             )
             Text(
                 text =
-                    "Create or login to your account to access your profile " +
-                        "and meet new friends in nearby parks.",
+                    "Create an account and meet new friends in nearby parks.",
                 style =
                     CustomTextStyle.Body2
                         .copy(color = CustomColors.Transparencies.White),
             )
         }
 
-        FormField(
-            text = email,
-            onValueChanged = { email.value = it },
-            label = "Email",
-        )
+        Column {
+            Text(
+                text = "* Required fields",
+                style =
+                    CustomTextStyle.Body5.copy(
+                        color = CustomColors.Transparencies.White,
+                    ),
+            )
+            FormField(
+                text = email,
+                onValueChanged = { email.value = it },
+                label = "Email*",
+            )
+        }
 
         Row(
             horizontalArrangement =
@@ -92,7 +104,6 @@ fun SignUpContent(
                 label = "Last Name",
             )
         }
-
         Row(
             horizontalArrangement =
                 spacedBy(
@@ -106,31 +117,24 @@ fun SignUpContent(
                 label = "Profile Name",
             )
             FormField(
-                modifier = Modifier.weight(1f),
-                text = gender,
-                onValueChanged = { gender.value = it },
-                label = "Gender",
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .clickable {
+                        },
+                text = dateOfBirth,
+                onValueChanged = { dateOfBirth.value = it },
+                label = "Date of Birth",
+                supportingText = "Format: YYYY-MM-DD",
+                onFocusChanged = { isFocused ->
+                    if (isFocused) {
+                        dateOfBirthIsSelected = true
+                    } else if (dateOfBirthIsSelected) {
+                        dateOfBirthIsSelected = false
+                    }
+                },
             )
         }
-
-        FormField(
-            text = city,
-            onValueChanged = { city.value = it },
-            label = "City",
-        )
-        FormField(
-            text = province,
-            onValueChanged = { province.value = it },
-            label = "Province",
-        )
-
-        FormField(
-            text = dateOfBirth,
-            onValueChanged = { dateOfBirth.value = it },
-            label = "Date of Birth",
-            supportingText = "Format: YYYY-MM-DD",
-        )
-
         Row(
             horizontalArrangement =
                 spacedBy(
@@ -139,19 +143,36 @@ fun SignUpContent(
         ) {
             FormField(
                 modifier = Modifier.weight(1f),
-                text = password,
-                onValueChanged = { password.value = it },
-                label = "Password",
-                shouldShowText = false,
+                text = city,
+                onValueChanged = { city.value = it },
+                label = "City",
             )
             FormField(
                 modifier = Modifier.weight(1f),
-                text = confirmPassword,
-                onValueChanged = { confirmPassword.value = it },
-                label = "Confirm",
-                shouldShowText = false,
+                text = province,
+                onValueChanged = { province.value = it },
+                label = "Province",
             )
         }
+        FormField(
+            text = password,
+            onValueChanged = { password.value = it },
+            label = "Password*",
+            shouldShowText = false,
+        )
+        FormField(
+            text = confirmPassword,
+            onValueChanged = { confirmPassword.value = it },
+            label = "Confirm password*",
+            shouldShowText = false,
+        )
+        Text(
+            text = "Password must be at least 6 characters long.",
+            style =
+                CustomTextStyle.Body5.copy(
+                    color = CustomColors.Transparencies.White,
+                ),
+        )
 
         Button(
             modifier =
@@ -166,7 +187,6 @@ fun SignUpContent(
                         profileName = profileName.value,
                         city = city.value,
                         province = province.value,
-                        gender = gender.value,
                         dateOfBirth = dateOfBirth.value,
                     )
                 onSignupClicked(form, password.value, confirmPassword.value)
@@ -174,11 +194,29 @@ fun SignUpContent(
             colors = ButtonDefaults.buttonColors(containerColor = CustomColors.Primary.DarkGreen),
         ) {
             Text(
-                "Signup",
+                "Sign Up",
                 style =
                     CustomTextStyle.Heading3.copy(
                         color = CustomColors.Transparencies.White,
                     ),
+            )
+        }
+    }
+    if (dateOfBirthIsSelected) {
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            DatePickerDialog(
+                onDateSelected = { selectedDate ->
+                    dateOfBirth.value = selectedDate
+                    dateOfBirthIsSelected = false
+                },
+                onCancelled = {
+                    dateOfBirthIsSelected = false
+                },
             )
         }
     }

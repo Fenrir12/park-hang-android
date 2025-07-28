@@ -10,6 +10,5 @@ data class UserProfileInfo(
     val surname: String = "",
     val city: String = "",
     val province: String = "",
-    val gender: String = "",
     val dateOfBirth: String = "",
 )

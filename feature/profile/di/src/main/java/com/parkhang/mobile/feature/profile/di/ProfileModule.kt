@@ -40,8 +40,7 @@ class ProfileModule {
             userProfileRepository.getUserProfileInfo()
         },
         updateUserProfile = { newUserFormInfo ->
-            val userProfile = userProfileRepository.patchUserProfileInfo(newUserFormInfo)
-            userProfile
+            userProfileRepository.patchUserProfileInfo(newUserFormInfo)
         },
     )
 }
