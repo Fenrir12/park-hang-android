@@ -7,10 +7,17 @@ import kotlinx.coroutines.withContext
 class UserProfileRepository(
     ioDispatcher: CoroutineDispatcher,
     fetchUserProfileInfo: suspend () -> Result<UserProfileInfo>,
+    updateUserProfileInfo: suspend (UserProfileInfo) -> Result<UserProfileInfo>,
 ) {
     val getUserProfileInfo: suspend () -> UserProfileInfo = {
         withContext(ioDispatcher) {
             fetchUserProfileInfo().getOrThrow()
+        }
+    }
+
+    val patchUserProfileInfo: suspend (UserProfileInfo) -> UserProfileInfo = { userProfileInfo ->
+        withContext(ioDispatcher) {
+            updateUserProfileInfo(userProfileInfo).getOrThrow()
         }
     }
 }

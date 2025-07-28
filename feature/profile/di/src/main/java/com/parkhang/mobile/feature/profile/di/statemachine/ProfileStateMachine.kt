@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.stateIn
 class ProfileStateMachine(
     scope: CoroutineScope,
     private val signup: suspend (UserCredentials) -> Unit,
+    private val updateUserProfile: suspend (UserProfileInfo) -> UserProfileInfo,
     private val login: suspend (UserCredentials) -> Unit,
     private val logout: suspend () -> Unit,
     private val isUserLoggedIn: suspend () -> Boolean,
@@ -24,15 +25,23 @@ class ProfileStateMachine(
     data class UiState(
         val isLoading: Boolean = false,
         val isLoggedIn: Boolean? = null,
-        val username: String? = null,
+        val userProfileInfo: UserProfileInfo? = null,
+        val isSignUpFormValid: Boolean = false,
         val error: String? = null,
+        val formErrorCode: SignUpFormErrorCode? = null,
     )
 
     sealed class UiIntent {
         data object CheckAuthentication : UiIntent()
 
+        data class ValidateSignUpForm(
+            val newUserFormInfo: UserProfileInfo,
+            val password: String,
+            val confirmPassword: String,
+        ) : UiIntent()
+
         data class SignUp(
-            val email: String,
+            val newUserFormInfo: UserProfileInfo,
             val password: String,
         ) : UiIntent()
 
@@ -58,13 +67,22 @@ class ProfileStateMachine(
                             checkAuthenticationFlow()
                         }
 
+                        is UiIntent.ValidateSignUpForm -> {
+                            validateSigUpFormFlow(
+                                newUserFormInfo = intent.newUserFormInfo,
+                                password = intent.password,
+                                confirmPassword = intent.confirmPassword,
+                            )
+                        }
+
                         is UiIntent.SignUp -> {
                             signUpFlow(
                                 credentials =
                                     UserCredentials(
-                                        email = intent.email,
+                                        email = intent.newUserFormInfo.email,
                                         password = intent.password,
                                     ),
+                                newUserFormInfo = intent.newUserFormInfo,
                             )
                         }
 
@@ -77,6 +95,7 @@ class ProfileStateMachine(
                                     ),
                             )
                         }
+
                         is UiIntent.Logout -> {
                             logoutFlow()
                         }
@@ -84,7 +103,7 @@ class ProfileStateMachine(
                 }.scan(UiState()) { previousState, newState ->
                     previousState.copy(
                         isLoggedIn = newState.isLoggedIn ?: previousState.isLoggedIn,
-                        username = newState.username ?: previousState.username,
+                        userProfileInfo = newState.userProfileInfo ?: previousState.userProfileInfo,
                     )
                 }.stateIn(scope, SharingStarted.Eagerly, UiState())
     }
@@ -101,21 +120,89 @@ class ProfileStateMachine(
                 emit(
                     UiState(
                         isLoggedIn = true,
-                        username = userProfileInfo.email,
+                        userProfileInfo = userProfileInfo,
                     ),
                 )
             } else {
-                emit(UiState(isLoggedIn = false, username = null))
+                emit(UiState(isLoggedIn = false, userProfileInfo = null))
             }
         }
 
-    private fun signUpFlow(credentials: UserCredentials): Flow<UiState> =
+    private fun validateSigUpFormFlow(
+        newUserFormInfo: UserProfileInfo,
+        password: String,
+        confirmPassword: String,
+    ): Flow<UiState> =
+        flow {
+            when {
+                newUserFormInfo.email.isBlank() || password.isBlank() || confirmPassword.isBlank() -> {
+                    emit(
+                        UiState(
+                            error = "Email and password fields cannot be empty",
+                            formErrorCode = SignUpFormErrorCode.UnknownError,
+                        ),
+                    )
+                }
+
+                !android.util.Patterns.EMAIL_ADDRESS
+                    .matcher(newUserFormInfo.email)
+                    .matches() -> {
+                    emit(
+                        UiState(
+                            error = "Invalid email format",
+                            formErrorCode = SignUpFormErrorCode.InvalidEmail,
+                        ),
+                    )
+                }
+
+                password.length < 6 -> {
+                    emit(
+                        UiState(
+                            error = "Password must be at least 6 characters",
+                            formErrorCode = SignUpFormErrorCode.PasswordTooShort,
+                        ),
+                    )
+                }
+
+                password != confirmPassword -> {
+                    emit(
+                        UiState(
+                            error = "Passwords do not match",
+                            formErrorCode = SignUpFormErrorCode.PasswordMismatch,
+                        ),
+                    )
+                }
+
+                else -> {
+                    emit(
+                        UiState(
+                            isLoggedIn = false,
+                            userProfileInfo = null,
+                            isSignUpFormValid = true,
+                            formErrorCode = null,
+                        ),
+                    )
+                    processIntent(
+                        UiIntent.SignUp(
+                            newUserFormInfo = newUserFormInfo,
+                            password = password,
+                        ),
+                    )
+                }
+            }
+        }
+
+    private fun signUpFlow(
+        credentials: UserCredentials,
+        newUserFormInfo: UserProfileInfo,
+    ): Flow<UiState> =
         flow {
             try {
                 signup(credentials)
-                emit(UiState(isLoggedIn = isUserLoggedIn(), username = credentials.email))
+                val user = updateUserProfile(newUserFormInfo)
+                emit(UiState(isLoggedIn = isUserLoggedIn(), userProfileInfo = user))
             } catch (e: Exception) {
-                emit(UiState(isLoggedIn = false, username = null))
+                emit(UiState(isLoggedIn = false, userProfileInfo = null))
             }
         }
 
@@ -123,9 +210,10 @@ class ProfileStateMachine(
         flow {
             try {
                 login(credentials)
-                emit(UiState(isLoggedIn = isUserLoggedIn(), username = credentials.email))
+                val user = getUserProfileInfo()
+                emit(UiState(isLoggedIn = isUserLoggedIn(), userProfileInfo = user))
             } catch (e: Exception) {
-                emit(UiState(isLoggedIn = false, username = null))
+                emit(UiState(isLoggedIn = false, userProfileInfo = null))
             }
         }
 
@@ -133,9 +221,21 @@ class ProfileStateMachine(
         flow {
             try {
                 logout()
-                emit(UiState(isLoggedIn = false, username = null))
+                emit(UiState(isLoggedIn = false, userProfileInfo = null))
             } catch (e: Exception) {
                 emit(UiState(error = "Logout failed: ${e.message}"))
             }
         }
+}
+
+sealed class SignUpFormErrorCode {
+    object NONE : SignUpFormErrorCode()
+
+    object InvalidEmail : SignUpFormErrorCode()
+
+    object PasswordTooShort : SignUpFormErrorCode()
+
+    object PasswordMismatch : SignUpFormErrorCode()
+
+    object UnknownError : SignUpFormErrorCode()
 }

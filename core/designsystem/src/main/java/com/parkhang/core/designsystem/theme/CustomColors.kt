@@ -6,6 +6,10 @@ import androidx.compose.ui.graphics.Color
  * [CustomColors] containing the custom color values.
  */
 object CustomColors {
+    object Border {
+        val StrokeTint = Neutrals.White30
+    }
+
     object Transparencies {
         val Black = Color(0xFF000000)
         val Gray = Color(0xFF888888)
@@ -41,6 +45,8 @@ object CustomColors {
         val DarkYellow = Color(0xFFDF8321)
         val Yellow = Color(0xFFFFB74D)
         val ClearYellow = Color(0xFFFFFFE0)
+        val Red = Color(0xFFD72638)
+        val RedLight = Color(0xFFF28B82)
     }
 
     object Status {

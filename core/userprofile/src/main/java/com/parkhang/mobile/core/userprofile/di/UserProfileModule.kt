@@ -23,5 +23,8 @@ class UserProfileModule {
             fetchUserProfileInfo = {
                 userApi.getMe()
             },
+            updateUserProfileInfo = { userProfileInfo ->
+                userApi.patchMe(userProfileInfo)
+            },
         )
 }
