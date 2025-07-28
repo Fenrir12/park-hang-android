@@ -7,6 +7,10 @@ object Icons {
         val Warning = R.drawable.icons_warning
     }
 
+    object Navigation {
+        val Exit: Int = R.drawable.icons_navigation_exit
+    }
+
     object Map {
         object Pin {
             val Green: Int = R.drawable.icons_map_pin_gradient_green

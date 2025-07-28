@@ -7,7 +7,7 @@ import com.parkhang.mobile.framework.network.client.model.withResult
 import io.ktor.resources.Resource
 import javax.inject.Inject
 
-@Resource("v1/users/me")
+@Resource("api/users/me")
 object MeResource
 
 class UserApi

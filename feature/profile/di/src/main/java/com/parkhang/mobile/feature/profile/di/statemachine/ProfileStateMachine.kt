@@ -1,5 +1,6 @@
 package com.parkhang.mobile.feature.profile.di.statemachine
 
+import com.parkhang.mobile.core.userprofile.entity.UserProfileInfo
 import com.parkhang.mobile.framework.authentication.entity.UserCredentials
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -16,11 +17,13 @@ class ProfileStateMachine(
     scope: CoroutineScope,
     private val signup: suspend (UserCredentials) -> Unit,
     private val login: suspend (UserCredentials) -> Unit,
+    private val logout: suspend () -> Unit,
     private val isUserLoggedIn: suspend () -> Boolean,
+    private val getUserProfileInfo: suspend () -> UserProfileInfo,
 ) {
     data class UiState(
         val isLoading: Boolean = false,
-        val isLoggedIn: Boolean? = false,
+        val isLoggedIn: Boolean? = null,
         val username: String? = null,
         val error: String? = null,
     )
@@ -37,6 +40,8 @@ class ProfileStateMachine(
             val email: String,
             val password: String,
         ) : UiIntent()
+
+        data object Logout : UiIntent()
     }
 
     private val _intents = MutableSharedFlow<UiIntent>(extraBufferCapacity = 1)
@@ -72,6 +77,9 @@ class ProfileStateMachine(
                                     ),
                             )
                         }
+                        is UiIntent.Logout -> {
+                            logoutFlow()
+                        }
                     }
                 }.scan(UiState()) { previousState, newState ->
                     previousState.copy(
@@ -87,19 +95,25 @@ class ProfileStateMachine(
 
     private fun checkAuthenticationFlow(): Flow<UiState> =
         flow {
-            emit(
-                UiState(
-                    isLoggedIn = isUserLoggedIn(),
-                    username = null,
-                ),
-            )
+            val isUserLoggedIn = isUserLoggedIn()
+            if (isUserLoggedIn) {
+                val userProfileInfo = getUserProfileInfo()
+                emit(
+                    UiState(
+                        isLoggedIn = true,
+                        username = userProfileInfo.email,
+                    ),
+                )
+            } else {
+                emit(UiState(isLoggedIn = false, username = null))
+            }
         }
 
     private fun signUpFlow(credentials: UserCredentials): Flow<UiState> =
         flow {
             try {
                 signup(credentials)
-                emit(UiState(isLoggedIn = true, username = credentials.email))
+                emit(UiState(isLoggedIn = isUserLoggedIn(), username = credentials.email))
             } catch (e: Exception) {
                 emit(UiState(isLoggedIn = false, username = null))
             }
@@ -109,9 +123,19 @@ class ProfileStateMachine(
         flow {
             try {
                 login(credentials)
-                emit(UiState(isLoggedIn = true, username = credentials.email))
+                emit(UiState(isLoggedIn = isUserLoggedIn(), username = credentials.email))
             } catch (e: Exception) {
                 emit(UiState(isLoggedIn = false, username = null))
+            }
+        }
+
+    private fun logoutFlow(): Flow<UiState> =
+        flow {
+            try {
+                logout()
+                emit(UiState(isLoggedIn = false, username = null))
+            } catch (e: Exception) {
+                emit(UiState(error = "Logout failed: ${e.message}"))
             }
         }
 }
