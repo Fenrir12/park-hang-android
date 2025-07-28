@@ -11,6 +11,7 @@ dependencies {
     implementation(projects.feature.profile.entity)
 
     implementation(projects.core.common)
+    implementation(projects.core.userprofile)
 
     implementation(projects.framework.authentication)
 

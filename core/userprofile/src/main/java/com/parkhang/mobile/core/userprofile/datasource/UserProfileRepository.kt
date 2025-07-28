@@ -8,9 +8,9 @@ class UserProfileRepository(
     ioDispatcher: CoroutineDispatcher,
     fetchUserProfileInfo: suspend () -> Result<UserProfileInfo>,
 ) {
-    val getUserProfileInfo: suspend () -> UserProfileInfo? = {
+    val getUserProfileInfo: suspend () -> UserProfileInfo = {
         withContext(ioDispatcher) {
-            fetchUserProfileInfo().getOrNull()
+            fetchUserProfileInfo().getOrThrow()
         }
     }
 }

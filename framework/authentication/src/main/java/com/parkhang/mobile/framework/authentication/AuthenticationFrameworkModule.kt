@@ -55,6 +55,7 @@ class AuthenticationFrameworkModule {
             },
             onLogout = {
                 Log.d("AuthenticationFramework", "Logging out")
+                userCredentialsDatasource.deleteUserCredentials()
             },
             getIsUserLoggedIn = {
                 userCredentialsDatasource.getUserAuthToken().first()?.let { token ->

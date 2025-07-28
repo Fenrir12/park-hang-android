@@ -11,6 +11,8 @@ class ProfileViewModel
     constructor(
         private val profileStateMachine: ProfileStateMachine,
     ) : ViewModel() {
+        val uiStateFlow = profileStateMachine.uiStateFlow
+
         fun signUp(
             email: String,
             password: String,
@@ -32,6 +34,12 @@ class ProfileViewModel
                     email = email,
                     password = password,
                 ),
+            )
+        }
+
+        fun logout() {
+            profileStateMachine.processIntent(
+                ProfileStateMachine.UiIntent.Logout,
             )
         }
     }
