@@ -35,6 +35,10 @@ lifecycleExtensions = "2.2.0"
 maps-compose = "6.1.2"
 play-services-maps = "19.2.0"
 maps-compose-utils = "6.1.2"
+datastore = "1.1.1"
+protobuf = "3.25.3"
+protobufPlugin = "0.9.4"
+auth0 = "4.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -110,6 +114,15 @@ maps-compose = { group = "com.google.maps.android", name = "maps-compose", versi
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "play-services-maps" }
 maps-compose-utils = { group = "com.google.maps.android", name = "maps-compose-utils", version.ref = "maps-compose-utils" }
 
+# Datastore
+datastore = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+datastore-core = { module = "androidx.datastore:datastore-core", version.ref = "datastore" }
+google-protobuf-kotlin = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobuf" }
+google-protobuf-protoc = { group = "com.google.protobuf", name = "protoc", version.ref = "protobuf" }
+
+# Auth0
+auth0-jwt = { group = "com.auth0", name = "java-jwt", version.ref = "auth0" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
@@ -131,4 +144,7 @@ kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize",  version.ref 
 
 # KSP
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp"}
+
+# Protobuf
+google-protobuf = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
 
