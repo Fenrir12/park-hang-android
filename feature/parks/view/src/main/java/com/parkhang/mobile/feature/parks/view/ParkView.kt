@@ -44,6 +44,7 @@ import com.parkhang.mobile.feature.parks.entity.ParkItem
 import com.parkhang.mobile.feature.parks.entity.PinItem
 import com.parkhang.mobile.feature.parks.view.components.CustomDragHandle
 import com.parkhang.mobile.feature.parks.view.components.ParkItemContent
+import com.parkhang.mobile.feature.parks.view.components.RequestLocationPermissions
 import com.parkhang.mobile.feature.parks.view.map.MapScreen
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -68,6 +69,11 @@ fun ParkView(
             )
         }
     }
+
+    RequestLocationPermissions(
+        onGranted = viewModel::getUserLocation,
+    )
+
     ParkScreen(
         pinList =
             uiState.pinList.map { pin ->

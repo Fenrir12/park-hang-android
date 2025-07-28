@@ -13,6 +13,7 @@ dependencies {
     implementation(projects.core.designsystem)
 
     implementation(libs.maps.compose)
+    implementation(libs.accompanist.permissions)
     implementation(libs.maps.compose.utils)
     implementation(libs.play.services.maps)
 

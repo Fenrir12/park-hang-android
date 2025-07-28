@@ -14,6 +14,12 @@ class ParksViewModel
     ) : ViewModel() {
         val uiStateFlow = parksStateMachine.uiStateFlow
 
+        fun getUserLocation() {
+            parksStateMachine.processIntent(
+                ParksStateMachine.UiIntent.GetLocation,
+            )
+        }
+
         fun fetchPins(
             cameraCenter: LatLng,
             searchRadius: Int,

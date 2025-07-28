@@ -35,10 +35,12 @@ lifecycleExtensions = "2.2.0"
 maps-compose = "6.1.2"
 play-services-maps = "19.2.0"
 maps-compose-utils = "6.1.2"
-datastore = "1.1.1"
+datastore = "1.1.7"
 protobuf = "3.25.3"
 protobufPlugin = "0.9.4"
 auth0 = "4.4.0"
+play-services-location = "21.3.0"
+accompanist = "0.34.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -113,6 +115,8 @@ androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-p
 maps-compose = { group = "com.google.maps.android", name = "maps-compose", version.ref = "maps-compose" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "play-services-maps" }
 maps-compose-utils = { group = "com.google.maps.android", name = "maps-compose-utils", version.ref = "maps-compose-utils" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "play-services-location" }
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 
 # Datastore
 datastore = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }

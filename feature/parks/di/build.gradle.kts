@@ -13,6 +13,8 @@ dependencies {
 
     implementation(projects.core.common)
 
+    implementation(projects.framework.geolocation)
+
     implementation(libs.ktor.resources)
     implementation(libs.maps.compose)
     implementation(libs.maps.compose.utils)
