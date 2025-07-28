@@ -47,8 +47,8 @@ include(":feature:profile:di")
 include(":feature:profile:datasource")
 
 include(":framework:network:client")
-
 include(":framework:authentication")
+include(":framework:geolocation")
 
 include(":framework:persistence:datasource")
 include(":framework:persistence:localdatastorage")

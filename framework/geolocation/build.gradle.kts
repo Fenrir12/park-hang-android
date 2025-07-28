@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.touchtunes.parkhang.mobile.framework.persistence.datasource.usercredentialspreferences"
+    namespace = "com.touchtunes.parkhang.mobile.framework.geolocation"
 }
 
 dependencies {
-    implementation(projects.framework.persistence.localdatastorage)
+    implementation(libs.play.services.location)
 
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.junit4)

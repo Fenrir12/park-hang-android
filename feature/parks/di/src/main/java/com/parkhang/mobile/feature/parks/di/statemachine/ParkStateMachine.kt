@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 
@@ -52,11 +51,7 @@ class ParksStateMachine(
     init {
         uiStateFlow =
             _intents
-                .onStart {
-                    emit(
-                        UiIntent.GetLocation,
-                    )
-                }.flatMapLatest { intent ->
+                .flatMapLatest { intent ->
                     when (intent) {
                         is UiIntent.GetLocation -> {
                             getLocationFlow()
