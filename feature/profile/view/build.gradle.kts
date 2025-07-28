@@ -10,6 +10,7 @@ dependencies {
     implementation(projects.feature.profile.entity)
     implementation(projects.feature.profile.di)
 
+    implementation(projects.core.userprofile)
     implementation(projects.core.designsystem)
     implementation(projects.core.designsystem.components)
 

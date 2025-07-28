@@ -5,4 +5,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class UserProfileInfo(
     val email: String,
+    val profileName: String = "",
+    val name: String = "",
+    val surname: String = "",
+    val city: String = "",
+    val province: String = "",
+    val gender: String = "",
+    val dateOfBirth: String = "",
 )

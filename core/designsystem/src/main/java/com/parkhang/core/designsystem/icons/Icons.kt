@@ -9,6 +9,14 @@ object Icons {
 
     object Navigation {
         val Exit: Int = R.drawable.icons_navigation_exit
+
+        object Email {
+            val White: Int = R.drawable.icons_navigation_email_white_filled
+        }
+
+        object Profile {
+            val White: Int = R.drawable.icons_navigation_user_outlined
+        }
     }
 
     object Map {

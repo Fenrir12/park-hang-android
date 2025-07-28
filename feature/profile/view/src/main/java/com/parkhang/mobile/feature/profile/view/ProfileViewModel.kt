@@ -1,6 +1,7 @@
 package com.parkhang.mobile.feature.profile.view
 
 import androidx.lifecycle.ViewModel
+import com.parkhang.mobile.core.userprofile.entity.UserProfileInfo
 import com.parkhang.mobile.feature.profile.di.statemachine.ProfileStateMachine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -13,14 +14,16 @@ class ProfileViewModel
     ) : ViewModel() {
         val uiStateFlow = profileStateMachine.uiStateFlow
 
-        fun signUp(
-            email: String,
+        fun validateSignUpForm(
+            newUserFormInfo: UserProfileInfo,
             password: String,
+            confirmPassword: String,
         ) {
             profileStateMachine.processIntent(
-                ProfileStateMachine.UiIntent.SignUp(
-                    email = email,
+                ProfileStateMachine.UiIntent.ValidateSignUpForm(
+                    newUserFormInfo = newUserFormInfo,
                     password = password,
+                    confirmPassword = confirmPassword,
                 ),
             )
         }

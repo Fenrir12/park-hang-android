@@ -4,8 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -14,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.parkhang.core.designsystem.layout.Padding
 import com.parkhang.core.designsystem.theme.CustomColors
+import com.parkhang.mobile.core.userprofile.entity.UserProfileInfo
 import com.parkhang.mobile.feature.profile.view.components.AnonymousProfileContent
 import com.parkhang.mobile.feature.profile.view.components.AuthenticatedProfileContent
 
@@ -29,8 +33,9 @@ fun ProfileView(
             modifier
                 .fillMaxSize(),
         isUserLoggedIn = uiState.isLoggedIn == true,
-        email = uiState.username ?: "",
-        onSignupClicked = viewModel::signUp,
+        email = uiState.userProfileInfo?.email ?: "",
+        profileName = uiState.userProfileInfo?.profileName ?: uiState.userProfileInfo?.email ?: "",
+        onSignupClicked = viewModel::validateSignUpForm,
         onLoginClicked = viewModel::login,
         onLogoutClicked = viewModel::logout,
     )
@@ -40,7 +45,8 @@ fun ProfileView(
 fun ProfileScreen(
     isUserLoggedIn: Boolean,
     email: String,
-    onSignupClicked: (email: String, password: String) -> Unit,
+    profileName: String,
+    onSignupClicked: (newUserFormInfo: UserProfileInfo, password: String, confirmPassword: String) -> Unit,
     onLoginClicked: (email: String, password: String) -> Unit,
     onLogoutClicked: () -> Unit,
     modifier: Modifier = Modifier,
@@ -52,7 +58,7 @@ fun ProfileScreen(
                     color = CustomColors.Primary.LightGreen,
                 ).padding(
                     horizontal = Padding.Small.L,
-                    vertical = Padding.Large.M,
+                    vertical = Padding.Small.S,
                 ),
     ) {
         ProfileContent(
@@ -61,8 +67,9 @@ fun ProfileScreen(
                     .fillMaxSize(),
             isUserLoggedIn = isUserLoggedIn,
             email = email,
-            onSignup = onSignupClicked,
-            onLogin = onLoginClicked,
+            profileName = profileName,
+            onSignupClicked = onSignupClicked,
+            onLoginClicked = onLoginClicked,
             onLogoutClicked = onLogoutClicked,
         )
     }
@@ -72,25 +79,28 @@ fun ProfileScreen(
 fun ProfileContent(
     isUserLoggedIn: Boolean,
     email: String,
-    onSignup: (email: String, password: String) -> Unit,
-    onLogin: (email: String, password: String) -> Unit,
+    profileName: String,
+    onSignupClicked: (newUserFormInfo: UserProfileInfo, password: String, confirmPassword: String) -> Unit,
+    onLoginClicked: (email: String, password: String) -> Unit,
     onLogoutClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier =
             modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.statusBars),
         verticalArrangement = spacedBy(Padding.Medium.S),
     ) {
         if (!isUserLoggedIn) {
             AnonymousProfileContent(
-                onSignup = onSignup,
-                onLogin = onLogin,
+                onSignupClicked = onSignupClicked,
+                onLoginClicked = onLoginClicked,
             )
         } else {
             AuthenticatedProfileContent(
                 email = email,
+                profileName = profileName,
                 onLogoutClicked = onLogoutClicked,
             )
         }
@@ -101,11 +111,12 @@ fun ProfileContent(
 @Composable
 fun ProfileViewUnauthenticatedPreview() {
     ProfileScreen(
-        onSignupClicked = { _, _ -> },
+        onSignupClicked = { _, _, _ -> },
         onLoginClicked = { _, _ -> },
         onLogoutClicked = { },
         isUserLoggedIn = false,
         email = "",
+        profileName = "",
         modifier =
             Modifier
                 .fillMaxSize(),
@@ -116,11 +127,12 @@ fun ProfileViewUnauthenticatedPreview() {
 @Composable
 fun ProfileViewAuthenticatedPreview() {
     ProfileScreen(
-        onSignupClicked = { _, _ -> },
+        onSignupClicked = { _, _, _ -> },
         onLoginClicked = { _, _ -> },
         onLogoutClicked = { },
         isUserLoggedIn = true,
         email = "john.doe@gmail.com",
+        profileName = "John Doe",
         modifier =
             Modifier
                 .fillMaxSize(),
