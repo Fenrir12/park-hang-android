@@ -8,7 +8,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 
 fun NavController.navigateToParks(navOptions: NavOptions? = null) {
-    navigate(route = ROUTE_PARKS, navOptions = navOptions)
+    this.navigate(ROUTE_PARKS, navOptions)
 }
 
 fun NavGraphBuilder.parkScreen() {
