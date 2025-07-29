@@ -10,19 +10,17 @@ import java.security.KeyStore
 @InstallIn(SingletonComponent::class)
 internal object SecurityModule {
     @Provides
-    fun providesCipherProvider(): CipherProvider =
-        CipherProvider(
-            keyStore = KeyStore.getInstance(ANDROID_KEY_STORE_TYPE).apply { load(null) },
-            keyName = KEY_STORE_ENTRY_ALIAS,
-            keyStoreName = ANDROID_KEY_STORE_TYPE,
-        )
+    fun providesCipherProvider(): CipherProvider = CipherProvider(
+        keyStore = KeyStore.getInstance(ANDROID_KEY_STORE_TYPE).apply { load(null) },
+        keyName = KEY_STORE_ENTRY_ALIAS,
+        keyStoreName = ANDROID_KEY_STORE_TYPE,
+    )
 
     @Provides
-    fun providesCrypto(cipherProvider: CipherProvider): Crypto =
-        Crypto(
-            encryptCipher = cipherProvider.encryptCipher,
-            decryptCipher = cipherProvider.decryptCipher,
-        )
+    fun providesCrypto(cipherProvider: CipherProvider): Crypto = Crypto(
+        encryptCipher = cipherProvider.encryptCipher,
+        decryptCipher = cipherProvider.decryptCipher,
+    )
 }
 
 internal const val ANDROID_KEY_STORE_TYPE = "AndroidKeyStore"

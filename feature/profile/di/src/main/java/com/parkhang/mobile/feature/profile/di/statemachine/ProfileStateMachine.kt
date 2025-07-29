@@ -64,13 +64,13 @@ class ProfileStateMachine(
         data object Logout : UiIntent()
     }
 
-    private val _intents = MutableSharedFlow<UiIntent>(extraBufferCapacity = 1)
+    private val intents = MutableSharedFlow<UiIntent>(extraBufferCapacity = 1)
 
     val uiStateFlow: StateFlow<UiState>
 
     init {
         uiStateFlow =
-            _intents
+            intents
                 .onStart { emit(UiIntent.CheckAuthentication) }
                 .flatMapLatest { intent ->
                     when (intent) {
@@ -133,142 +133,136 @@ class ProfileStateMachine(
     }
 
     fun processIntent(intent: UiIntent) {
-        _intents.tryEmit(intent)
+        intents.tryEmit(intent)
     }
 
-    private fun checkAuthenticationFlow(): Flow<UiState> =
-        flow {
-            val isUserLoggedIn = isUserLoggedIn()
-            if (isUserLoggedIn) {
-                val userProfileInfo = getUserProfileInfo()
-                emit(
-                    UiState(
-                        isLoggedIn = true,
-                        userProfileInfo = userProfileInfo,
-                    ),
-                )
-            } else {
-                emit(UiState(isLoggedIn = false, userProfileInfo = null))
-            }
+    private fun checkAuthenticationFlow(): Flow<UiState> = flow {
+        val isUserLoggedIn = isUserLoggedIn()
+        if (isUserLoggedIn) {
+            val userProfileInfo = getUserProfileInfo()
+            emit(
+                UiState(
+                    isLoggedIn = true,
+                    userProfileInfo = userProfileInfo,
+                ),
+            )
+        } else {
+            emit(UiState(isLoggedIn = false, userProfileInfo = null))
+        }
+    }
+
+    private fun validatePasswordFlow(password: String): Flow<UiState> = flow {
+        val errors = mutableListOf<PasswordFormErrorCode>()
+
+        if (password.length < MINIMUM_PASSWORD_SIZE) {
+            errors.add(PasswordFormErrorCode.TooShort)
         }
 
-    private fun validatePasswordFlow(password: String): Flow<UiState> =
-        flow {
-            val errors = mutableListOf<PasswordFormErrorCode>()
-
-            if (password.length < MINIMUM_PASSWORD_SIZE) {
-                errors.add(PasswordFormErrorCode.TooShort)
-            }
-
-            if (!password.any { !it.isLetterOrDigit() }) {
-                errors.add(PasswordFormErrorCode.MissingSymbol)
-            }
-
-            if (!password.any { it.isUpperCase() }) {
-                errors.add(PasswordFormErrorCode.MissingCapitalCharacter)
-            }
-
-            if (!password.any { it.isDigit() }) {
-                errors.add(PasswordFormErrorCode.MissingNumber)
-            }
-
-            if (errors.size > 1) {
-                emit(
-                    UiState(
-                        error = "Password must meet at least 3 of 4 rules",
-                        passwordErrorCodeList = errors,
-                    ),
-                )
-            } else {
-                emit(
-                    UiState(
-                        error = null,
-                        passwordErrorCodeList = emptyList(),
-                    ),
-                )
-            }
+        if (!password.any { !it.isLetterOrDigit() }) {
+            errors.add(PasswordFormErrorCode.MissingSymbol)
         }
+
+        if (!password.any { it.isUpperCase() }) {
+            errors.add(PasswordFormErrorCode.MissingCapitalCharacter)
+        }
+
+        if (!password.any { it.isDigit() }) {
+            errors.add(PasswordFormErrorCode.MissingNumber)
+        }
+
+        if (errors.size > 1) {
+            emit(
+                UiState(
+                    error = "Password must meet at least 3 of 4 rules",
+                    passwordErrorCodeList = errors,
+                ),
+            )
+        } else {
+            emit(
+                UiState(
+                    error = null,
+                    passwordErrorCodeList = emptyList(),
+                ),
+            )
+        }
+    }
 
     private fun validateSigUpFormFlow(
         newUserFormInfo: UserProfileInfo,
         password: String,
         confirmPassword: String,
-    ): Flow<UiState> =
-        flow {
-            when {
-                !android.util.Patterns.EMAIL_ADDRESS
-                    .matcher(newUserFormInfo.email)
-                    .matches() -> {
-                    emit(
-                        UiState(
-                            error = "Invalid email format",
-                            formErrorCode = SignUpFormErrorCode.InvalidEmail,
-                        ),
-                    )
-                }
+    ): Flow<UiState> = flow {
+        when {
+            !android.util.Patterns.EMAIL_ADDRESS
+                .matcher(newUserFormInfo.email)
+                .matches() -> {
+                emit(
+                    UiState(
+                        error = "Invalid email format",
+                        formErrorCode = SignUpFormErrorCode.InvalidEmail,
+                    ),
+                )
+            }
 
-                password != confirmPassword -> {
-                    emit(
-                        UiState(
-                            error = "Passwords do not match",
-                            formErrorCode = SignUpFormErrorCode.PasswordMismatch,
-                        ),
-                    )
-                }
+            password != confirmPassword -> {
+                emit(
+                    UiState(
+                        error = "Passwords do not match",
+                        formErrorCode = SignUpFormErrorCode.PasswordMismatch,
+                    ),
+                )
+            }
 
-                else -> {
-                    emit(
-                        UiState(
-                            isLoggedIn = false,
-                            userProfileInfo = null,
-                            isSignUpFormValid = true,
-                            formErrorCode = null,
-                        ),
-                    )
-                    processIntent(
-                        UiIntent.SignUp(
-                            newUserFormInfo = newUserFormInfo,
-                            password = password,
-                        ),
-                    )
-                }
+            else -> {
+                emit(
+                    UiState(
+                        isLoggedIn = false,
+                        userProfileInfo = null,
+                        isSignUpFormValid = true,
+                        formErrorCode = null,
+                    ),
+                )
+                processIntent(
+                    UiIntent.SignUp(
+                        newUserFormInfo = newUserFormInfo,
+                        password = password,
+                    ),
+                )
             }
         }
+    }
 
     private fun signUpFlow(
         credentials: UserCredentials,
         newUserFormInfo: UserProfileInfo,
-    ): Flow<UiState> =
-        flow {
-            try {
-                signup(credentials)
-                val user = updateUserProfile(newUserFormInfo)
-                emit(UiState(isLoggedIn = isUserLoggedIn(), userProfileInfo = user))
-            } catch (e: Exception) {
-                emit(UiState(isLoggedIn = false, userProfileInfo = null))
-            }
+    ): Flow<UiState> = flow {
+        try {
+            signup(credentials)
+            val user = updateUserProfile(newUserFormInfo)
+            emit(UiState(isLoggedIn = isUserLoggedIn(), userProfileInfo = user))
+        } catch (e: Exception) {
+            emit(UiState(isLoggedIn = false, userProfileInfo = null))
         }
+    }
 
-    private fun loginFlow(credentials: UserCredentials): Flow<UiState> =
-        flow {
-            try {
-                login(credentials)
-                val user = getUserProfileInfo()
-                emit(UiState(isLoggedIn = isUserLoggedIn(), userProfileInfo = user))
-            } catch (e: Exception) {
-                emit(UiState(isLoggedIn = false, userProfileInfo = null))
-            }
+    private fun loginFlow(credentials: UserCredentials): Flow<UiState> = flow {
+        try {
+            login(credentials)
+            val user = getUserProfileInfo()
+            emit(UiState(isLoggedIn = isUserLoggedIn(), userProfileInfo = user))
+        } catch (e: Exception) {
+            emit(UiState(isLoggedIn = false, userProfileInfo = null))
         }
+    }
 
-    private fun logoutFlow(): Flow<UiState> =
-        flow {
-            try {
-                logout()
-                emit(UiState(isLoggedIn = false, userProfileInfo = null))
-            } catch (e: Exception) {
-                emit(UiState(error = "Logout failed: ${e.message}"))
-            }
+    private fun logoutFlow(): Flow<UiState> = flow {
+        try {
+            logout()
+            emit(UiState(isLoggedIn = false, userProfileInfo = null))
+        } catch (e: Exception) {
+            emit(UiState(error = "Logout failed: ${e.message}"))
         }
+    }
 }
 
 sealed class SignUpFormErrorCode {

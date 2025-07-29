@@ -20,25 +20,23 @@ class AuthenticationClient
     constructor(
         private val client: NetworkClient,
     ) {
-        suspend fun signUp(credentials: UserCredentials): Result<AuthToken> =
-            withResult {
-                client.execute(
-                    method = HttpMethod.Post,
-                    resource = SignUp,
-                    body = credentials,
-                    headers = arrayOf(getContentTypeJsonHeader()),
-                )
-            }
+        suspend fun signUp(credentials: UserCredentials): Result<AuthToken> = withResult {
+            client.execute(
+                method = HttpMethod.Post,
+                resource = SignUp,
+                body = credentials,
+                headers = arrayOf(getContentTypeJsonHeader()),
+            )
+        }
 
-        suspend fun login(credentials: UserCredentials): Result<AuthToken> =
-            withResult {
-                client.execute(
-                    method = HttpMethod.Post,
-                    resource = Login,
-                    body = credentials,
-                    headers = arrayOf(getContentTypeJsonHeader()),
-                )
-            }
+        suspend fun login(credentials: UserCredentials): Result<AuthToken> = withResult {
+            client.execute(
+                method = HttpMethod.Post,
+                resource = Login,
+                body = credentials,
+                headers = arrayOf(getContentTypeJsonHeader()),
+            )
+        }
 
         private fun getContentTypeJsonHeader(): Pair<String, List<String>> = Pair(HttpHeaders.ContentType, listOf("application/json"))
     }

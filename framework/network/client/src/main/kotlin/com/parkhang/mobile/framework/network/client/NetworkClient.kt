@@ -72,28 +72,27 @@ class NetworkClient
             requestTimeoutMilliseconds: Long,
             requestBody: Any = EmptyContent,
             vararg headers: Pair<String, List<String>> = emptyArray(),
-        ): suspend () -> HttpStatement =
-            {
-                val params = NetworkRequestBuilder().apply(requestParams)
-                client.prepareRequest(resource) {
-                    method = requestMethod
+        ): suspend () -> HttpStatement = {
+            val params = NetworkRequestBuilder().apply(requestParams)
+            client.prepareRequest(resource) {
+                method = requestMethod
 
-                    this.headers.appendAll(params.headers.build())
-                    this.headers.appendAll(headersOf(*headers))
+                this.headers.appendAll(params.headers.build())
+                this.headers.appendAll(headersOf(*headers))
 
-                    with(params.baseUrl) {
-                        url.protocol = protocol
-                        url.host = host
-                        url.port = port
-                    }
+                with(params.baseUrl) {
+                    url.protocol = protocol
+                    url.host = host
+                    url.port = port
+                }
 
-                    setBody(requestBody)
+                setBody(requestBody)
 
-                    timeout {
-                        requestTimeoutMillis = requestTimeoutMilliseconds
-                    }
+                timeout {
+                    requestTimeoutMillis = requestTimeoutMilliseconds
                 }
             }
+        }
 
         /**
          * Execute the request and return [ApiResponse]
@@ -101,21 +100,20 @@ class NetworkClient
          * @param request: function that returns a HttpStatement
          * @return the [ApiResponse] serialized by <T>
          */
-        suspend inline fun <reified T : Any> executeRequest(request: suspend () -> HttpStatement): ApiResponse<T> =
-            try {
-                val response = request.invoke().execute()
-                if (response.status == HttpStatusCode.Created) {
-                    val result: T = response.body()
-                    ApiResponse.Created(result)
-                } else if (response.status != HttpStatusCode.NoContent) {
-                    val result: T = response.body()
-                    ApiResponse.Success(result)
-                } else {
-                    ApiResponse.NoContent
-                }
-            } catch (exception: Exception) {
-                ApiResponse.Error(exception.message.orEmpty())
+        suspend inline fun <reified T : Any> executeRequest(request: suspend () -> HttpStatement): ApiResponse<T> = try {
+            val response = request.invoke().execute()
+            if (response.status == HttpStatusCode.Created) {
+                val result: T = response.body()
+                ApiResponse.Created(result)
+            } else if (response.status != HttpStatusCode.NoContent) {
+                val result: T = response.body()
+                ApiResponse.Success(result)
+            } else {
+                ApiResponse.NoContent
             }
+        } catch (exception: Exception) {
+            ApiResponse.Error(exception.message.orEmpty())
+        }
     }
 
 const val RESPONSE_TIMEOUT_DEFAULT = 60_000L

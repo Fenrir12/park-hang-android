@@ -24,20 +24,19 @@ class ParksModule {
     fun provideParksRepository(
         parksApi: ParksApi,
         @Dispatcher(PHDispatchers.IO) ioDispatcher: CoroutineDispatcher,
-    ): ParksRepository =
-        ParksRepository(
-            ioDispatcher = ioDispatcher,
-            getNearbyParksList = { latitude, longitude, radius ->
-                parksApi.getNearbyPinsList(
-                    latitude = latitude,
-                    longitude = longitude,
-                    radius = radius,
-                )
-            },
-            getNearbyParksById = { parkIdList ->
-                parksApi.getNearbyParksById(parkIdList)
-            },
-        )
+    ): ParksRepository = ParksRepository(
+        ioDispatcher = ioDispatcher,
+        getNearbyParksList = { latitude, longitude, radius ->
+            parksApi.getNearbyPinsList(
+                latitude = latitude,
+                longitude = longitude,
+                radius = radius,
+            )
+        },
+        getNearbyParksById = { parkIdList ->
+            parksApi.getNearbyParksById(parkIdList)
+        },
+    )
 
     @Provides
     @Singleton

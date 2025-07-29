@@ -75,14 +75,13 @@ private fun navigateToTopLevelDestination(
     }
 }
 
-private fun navOptions(navController: NavController) =
-    navOptions {
-        popUpTo(navController.graph.findStartDestination().id) {
-            saveState = true
-        }
-        launchSingleTop = true
-        restoreState = true
+private fun navOptions(navController: NavController) = navOptions {
+    popUpTo(navController.graph.findStartDestination().id) {
+        saveState = true
     }
+    launchSingleTop = true
+    restoreState = true
+}
 
 const val PARKS_ROUTE = "parks"
 const val PROFILE_ROUTE = "profile"

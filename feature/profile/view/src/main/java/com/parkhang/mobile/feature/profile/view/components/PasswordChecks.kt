@@ -75,13 +75,12 @@ private fun PasswordCheckItem(
     }
 }
 
-private fun PasswordFormErrorCode.errorMessageFromErrorCode(isValid: Boolean): String =
-    when (this) {
-        PasswordFormErrorCode.TooShort -> "Password is too short"
-        PasswordFormErrorCode.MissingSymbol -> "Password must contain a special character"
-        PasswordFormErrorCode.MissingNumber -> "Password must contain a number"
-        PasswordFormErrorCode.MissingCapitalCharacter -> "Password must contain an uppercase letter"
-    }
+private fun PasswordFormErrorCode.errorMessageFromErrorCode(isValid: Boolean): String = when (this) {
+    PasswordFormErrorCode.TooShort -> "Password is too short"
+    PasswordFormErrorCode.MissingSymbol -> "Password must contain a special character"
+    PasswordFormErrorCode.MissingNumber -> "Password must contain a number"
+    PasswordFormErrorCode.MissingCapitalCharacter -> "Password must contain an uppercase letter"
+}
 
 @Preview
 @Composable

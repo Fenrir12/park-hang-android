@@ -24,11 +24,10 @@ import javax.inject.Singleton
 internal object LocalDataStorageModule {
     @Provides
     @Singleton
-    fun providesUserCredentialsSerializer(crypto: Crypto): UserCredentialsSerializer =
-        UserCredentialsSerializer(
-            encrypt = crypto.encrypt,
-            decrypt = crypto.decrypt,
-        )
+    fun providesUserCredentialsSerializer(crypto: Crypto): UserCredentialsSerializer = UserCredentialsSerializer(
+        encrypt = crypto.encrypt,
+        decrypt = crypto.decrypt,
+    )
 
     @Provides
     @Singleton
@@ -36,17 +35,16 @@ internal object LocalDataStorageModule {
         @ApplicationContext context: Context,
         @Dispatcher(PHDispatchers.IO) ioDispatcher: CoroutineDispatcher,
         userCredentialsSerializer: UserCredentialsSerializer,
-    ): DataStore<UserCredentialsPreferences> =
-        DataStoreFactory.create(
-            serializer = userCredentialsSerializer,
-            scope = CoroutineScope(ioDispatcher + SupervisorJob()),
-            corruptionHandler =
-                ReplaceFileCorruptionHandler {
-                    UserCredentialsPreferences.getDefaultInstance()
-                },
-        ) {
-            context.dataStoreFile(USER_CREDENTIALS_PREFS_FILE)
-        }
+    ): DataStore<UserCredentialsPreferences> = DataStoreFactory.create(
+        serializer = userCredentialsSerializer,
+        scope = CoroutineScope(ioDispatcher + SupervisorJob()),
+        corruptionHandler =
+            ReplaceFileCorruptionHandler {
+                UserCredentialsPreferences.getDefaultInstance()
+            },
+    ) {
+        context.dataStoreFile(USER_CREDENTIALS_PREFS_FILE)
+    }
 }
 
 const val USER_CREDENTIALS_PREFS_FILE = "user_credentials_prefs.pb"

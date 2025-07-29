@@ -17,24 +17,22 @@ class UserApi
     constructor(
         private val client: NetworkClient,
     ) {
-        suspend fun getMe(): Result<UserProfileInfo> =
-            withResult {
-                client.execute(
-                    resource = MeResource,
-                    requestType = Authenticated,
-                )
-            }
+        suspend fun getMe(): Result<UserProfileInfo> = withResult {
+            client.execute(
+                resource = MeResource,
+                requestType = Authenticated,
+            )
+        }
 
-        suspend fun patchMe(userProfileInfo: UserProfileInfo): Result<UserProfileInfo> =
-            withResult {
-                client.execute(
-                    method = HttpMethod.Patch,
-                    body = userProfileInfo,
-                    resource = MeResource,
-                    requestType = Authenticated,
-                    headers = arrayOf(getContentTypeJsonHeader()),
-                )
-            }
+        suspend fun patchMe(userProfileInfo: UserProfileInfo): Result<UserProfileInfo> = withResult {
+            client.execute(
+                method = HttpMethod.Patch,
+                body = userProfileInfo,
+                resource = MeResource,
+                requestType = Authenticated,
+                headers = arrayOf(getContentTypeJsonHeader()),
+            )
+        }
 
         private fun getContentTypeJsonHeader(): Pair<String, List<String>> = Pair(HttpHeaders.ContentType, listOf("application/json"))
     }

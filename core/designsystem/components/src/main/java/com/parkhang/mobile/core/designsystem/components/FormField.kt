@@ -271,12 +271,11 @@ private fun PlaceholderLabel(
 private fun borderColor(
     hasError: Boolean,
     isFocused: Boolean,
-): Color =
-    when {
-        hasError -> CustomColors.Status.Error
-        isFocused -> CustomColors.Transparencies.White
-        else -> CustomColors.Neutrals.White60
-    }
+): Color = when {
+    hasError -> CustomColors.Status.Error
+    isFocused -> CustomColors.Transparencies.White
+    else -> CustomColors.Neutrals.White60
+}
 
 @Composable
 @Preview

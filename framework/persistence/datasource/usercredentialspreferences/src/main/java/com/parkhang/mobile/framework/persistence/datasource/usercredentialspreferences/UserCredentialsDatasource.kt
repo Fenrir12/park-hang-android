@@ -89,12 +89,11 @@ data class UserAuthToken(
     val user: UserProfile? = null,
 ) {
     companion object {
-        fun empty() =
-            UserAuthToken(
-                idToken = "",
-                accessToken = "",
-                expiresAt = Date(0),
-            )
+        fun empty() = UserAuthToken(
+            idToken = "",
+            accessToken = "",
+            expiresAt = Date(0),
+        )
     }
 }
 
@@ -107,14 +106,13 @@ data class UserProfile(
     val createdAt: Date? = null,
 ) {
     companion object {
-        fun empty() =
-            UserProfile(
-                id = "",
-                name = null,
-                nickname = null,
-                email = "",
-                familyName = null,
-                createdAt = null,
-            )
+        fun empty() = UserProfile(
+            id = "",
+            name = null,
+            nickname = null,
+            email = "",
+            familyName = null,
+            createdAt = null,
+        )
     }
 }

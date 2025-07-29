@@ -22,8 +22,7 @@ class GeolocationModule {
     }
 
     @Provides
-    fun provideGeolocationTracker(fusedLocationProviderClient: FusedLocationProviderClient): GeolocationTracker =
-        GeolocationTracker(
-            fusedLocationProviderClient = fusedLocationProviderClient,
-        )
+    fun provideGeolocationTracker(fusedLocationProviderClient: FusedLocationProviderClient): GeolocationTracker = GeolocationTracker(
+        fusedLocationProviderClient = fusedLocationProviderClient,
+    )
 }

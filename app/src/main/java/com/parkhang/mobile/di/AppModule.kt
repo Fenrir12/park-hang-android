@@ -18,23 +18,21 @@ class AppModule {
     fun providesNetworkAdaptRequestFactory(
         loadBaseUrl: LoadBaseUrl,
         userCredentialsDatasource: UserCredentialsDatasource,
-    ): NetworkAdaptRequestFactory =
-        NetworkAdaptRequestFactory(
-            loadAccessToken = {
-                val token = userCredentialsDatasource.getUserAuthToken().first()?.accessToken ?: ""
-                Log.d("NetworkAdaptRequestFactory", "Loaded access token: $token")
-                token
-            },
-            loadBaseUrl = { loadBaseUrl() },
-        )
+    ): NetworkAdaptRequestFactory = NetworkAdaptRequestFactory(
+        loadAccessToken = {
+            val token = userCredentialsDatasource.getUserAuthToken().first()?.accessToken ?: ""
+            Log.d("NetworkAdaptRequestFactory", "Loaded access token: $token")
+            token
+        },
+        loadBaseUrl = { loadBaseUrl() },
+    )
 
     @Provides
     fun providesNetworkClient(
         baseHttpClient: BaseHttpClient,
         networkAdaptRequestFactory: NetworkAdaptRequestFactory,
-    ): NetworkClient =
-        NetworkClient(
-            client = baseHttpClient.build(),
-            adaptRequest = { networkAdaptRequestFactory },
-        )
+    ): NetworkClient = NetworkClient(
+        client = baseHttpClient.build(),
+        adaptRequest = { networkAdaptRequestFactory },
+    )
 }

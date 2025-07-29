@@ -17,14 +17,13 @@ class UserProfileModule {
     fun providesUserProfileRepository(
         @Dispatcher(PHDispatchers.IO) ioDispatcher: CoroutineDispatcher,
         userApi: UserApi,
-    ): UserProfileRepository =
-        UserProfileRepository(
-            ioDispatcher = ioDispatcher,
-            fetchUserProfileInfo = {
-                userApi.getMe()
-            },
-            updateUserProfileInfo = { userProfileInfo ->
-                userApi.patchMe(userProfileInfo)
-            },
-        )
+    ): UserProfileRepository = UserProfileRepository(
+        ioDispatcher = ioDispatcher,
+        fetchUserProfileInfo = {
+            userApi.getMe()
+        },
+        updateUserProfileInfo = { userProfileInfo ->
+            userApi.patchMe(userProfileInfo)
+        },
+    )
 }

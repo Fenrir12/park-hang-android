@@ -36,37 +36,35 @@ class ParksApi
             latitude: String,
             longitude: String,
             radius: String,
-        ): Result<List<Pin>> =
-            withResult {
-                client.execute(
-                    method = HttpMethod.Get,
-                    resource =
-                        NearbyParkPins(
-                            lat = latitude,
-                            lng = longitude,
-                            radius = radius,
-                        ),
-                )
-            }
+        ): Result<List<Pin>> = withResult {
+            client.execute(
+                method = HttpMethod.Get,
+                resource =
+                    NearbyParkPins(
+                        lat = latitude,
+                        lng = longitude,
+                        radius = radius,
+                    ),
+            )
+        }
 
-        suspend fun getNearbyParksById(parksIdList: List<String>): Result<List<Park>> =
-            withResult {
-                client.execute(
-                    method = HttpMethod.Post,
-                    resource =
-                        NearbyParksById(
-                            limit = PARKS_LIMIT,
-                        ),
-                    body =
-                        NearbyParksList(
-                            parksIds = parksIdList,
-                        ),
-                    headers =
-                        arrayOf(
-                            getContentTypeJsonHeader(),
-                        ),
-                )
-            }
+        suspend fun getNearbyParksById(parksIdList: List<String>): Result<List<Park>> = withResult {
+            client.execute(
+                method = HttpMethod.Post,
+                resource =
+                    NearbyParksById(
+                        limit = PARKS_LIMIT,
+                    ),
+                body =
+                    NearbyParksList(
+                        parksIds = parksIdList,
+                    ),
+                headers =
+                    arrayOf(
+                        getContentTypeJsonHeader(),
+                    ),
+            )
+        }
 
         private fun getContentTypeJsonHeader(): Pair<String, List<String>> = Pair(HttpHeaders.ContentType, listOf("application/json"))
     }

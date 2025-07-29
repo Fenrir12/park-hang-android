@@ -9,11 +9,10 @@ data class ParkItem(
         fun fromPark(
             park: Park,
             distanceFromUser: Int,
-        ): ParkItem =
-            ParkItem(
-                id = park.id,
-                name = park.name,
-                distanceFromUser = distanceFromUser,
-            )
+        ): ParkItem = ParkItem(
+            id = park.id,
+            name = park.name,
+            distanceFromUser = distanceFromUser,
+        )
     }
 }

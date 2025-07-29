@@ -54,14 +54,13 @@ inline fun <reified T : Any> withResult(block: () -> ApiResponse<T>): Result<T> 
  *
  * @return Result<ApiResponseSuccess<T>>
  */
-fun <T> ApiResponse<T>.toResultWrappedInSuccessType(): Result<ApiSuccessType<T>> =
-    when (this) {
-        is ApiResponse.Success -> Result.success(ApiSuccessType.Success(value))
-        is ApiResponse.NoContent -> Result.failure(Exception("No Content"))
-        is ApiResponse.Unauthorized -> Result.failure(Exception("Unauthorized: $error"))
-        is ApiResponse.Error -> Result.failure(Exception("Error: $error"))
-        else -> Result.failure(Exception("Unhandled ApiResponse type: $this"))
-    }
+fun <T> ApiResponse<T>.toResultWrappedInSuccessType(): Result<ApiSuccessType<T>> = when (this) {
+    is ApiResponse.Success -> Result.success(ApiSuccessType.Success(value))
+    is ApiResponse.NoContent -> Result.failure(Exception("No Content"))
+    is ApiResponse.Unauthorized -> Result.failure(Exception("Unauthorized: $error"))
+    is ApiResponse.Error -> Result.failure(Exception("Error: $error"))
+    else -> Result.failure(Exception("Unhandled ApiResponse type: $this"))
+}
 
 /**
  * \`ApiSuccessType\` is a sealed class used to wrap the API response body for successful responses.

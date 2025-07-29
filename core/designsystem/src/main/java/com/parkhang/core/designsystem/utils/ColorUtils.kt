@@ -45,12 +45,11 @@ fun getItemColor(
 private fun Available.color(
     color: Color,
     opacity: Float = Opacity.SEVENTY_PERCENT,
-): Color =
-    if (this) {
-        color
-    } else {
-        color.copy(alpha = opacity)
-    }
+): Color = if (this) {
+    color
+} else {
+    color.copy(alpha = opacity)
+}
 
 /**
  * Get the color of the item depending on the interaction source.
@@ -62,11 +61,10 @@ private fun Available.color(
 private fun InteractionSource.color(
     color: Color,
     opacity: Float,
-): Color =
-    if (this.collectIsPressedAsState().value) {
-        color.copy(alpha = opacity)
-    } else {
-        color
-    }
+): Color = if (this.collectIsPressedAsState().value) {
+    color.copy(alpha = opacity)
+} else {
+    color
+}
 
 typealias Available = Boolean

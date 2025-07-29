@@ -32,16 +32,14 @@ class CipherProvider
             }
         }
 
-        private suspend fun getOrCreateKey(): SecretKey =
-            keyLock.withLock {
-                (keyStore.getEntry(keyName, null) as? KeyStore.SecretKeyEntry)?.secretKey ?: generateKey()
-            }
+        private suspend fun getOrCreateKey(): SecretKey = keyLock.withLock {
+            (keyStore.getEntry(keyName, null) as? KeyStore.SecretKeyEntry)?.secretKey ?: generateKey()
+        }
 
-        private fun generateKey(): SecretKey =
-            KeyGenerator
-                .getInstance(ALGORITHM, keyStoreName)
-                .apply { init(keyGenParams) }
-                .generateKey()
+        private fun generateKey(): SecretKey = KeyGenerator
+            .getInstance(ALGORITHM, keyStoreName)
+            .apply { init(keyGenParams) }
+            .generateKey()
 
         private val keyGenParams =
             KeyGenParameterSpec

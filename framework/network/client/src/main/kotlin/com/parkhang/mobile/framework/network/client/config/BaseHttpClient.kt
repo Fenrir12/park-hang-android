@@ -30,47 +30,46 @@ class BaseHttpClient(
     }
 }
 
-fun baseConfig(): HttpClientConfig<*>.() -> Unit =
-    {
-        expectSuccess = true
+fun baseConfig(): HttpClientConfig<*>.() -> Unit = {
+    expectSuccess = true
 
-        install(ContentNegotiation) {
-            json(
-                Json {
-                    isLenient = true
-                    ignoreUnknownKeys = true
-                    coerceInputValues = true
-                },
-            )
-        }
-
-        install(HttpRequestRetry) {
-            maxRetries = RETRY_STRATEGY_MAXIMUM_COUNT
-
-            retryIf { request, response ->
-                response.status.isRetryable() && request.method.isGet()
-            }
-
-            // By default, Ktor does not retry on exceptions
-            // - IOException can happen on DNS resolution/lookup failure, etc.
-            // - SocketTimeoutException can happen if the network is temporarily
-            //   unavailable, bad wifi, etc.
-            retryOnExceptionIf { _, cause ->
-                cause is java.net.SocketTimeoutException || cause is java.io.IOException
-            }
-
-            exponentialDelay(
-                base = RETRY_STRATEGY_EXPONENTIAL_BASE_DELAY,
-            )
-        }
-
-        install(Resources)
-        install(HttpTimeout)
-        install(ContentEncoding) {
-            gzip()
-            deflate()
-        }
+    install(ContentNegotiation) {
+        json(
+            Json {
+                isLenient = true
+                ignoreUnknownKeys = true
+                coerceInputValues = true
+            },
+        )
     }
+
+    install(HttpRequestRetry) {
+        maxRetries = RETRY_STRATEGY_MAXIMUM_COUNT
+
+        retryIf { request, response ->
+            response.status.isRetryable() && request.method.isGet()
+        }
+
+        // By default, Ktor does not retry on exceptions
+        // - IOException can happen on DNS resolution/lookup failure, etc.
+        // - SocketTimeoutException can happen if the network is temporarily
+        //   unavailable, bad wifi, etc.
+        retryOnExceptionIf { _, cause ->
+            cause is java.net.SocketTimeoutException || cause is java.io.IOException
+        }
+
+        exponentialDelay(
+            base = RETRY_STRATEGY_EXPONENTIAL_BASE_DELAY,
+        )
+    }
+
+    install(Resources)
+    install(HttpTimeout)
+    install(ContentEncoding) {
+        gzip()
+        deflate()
+    }
+}
 
 /***
  * Checks if the status code is a 5XX that can replayed

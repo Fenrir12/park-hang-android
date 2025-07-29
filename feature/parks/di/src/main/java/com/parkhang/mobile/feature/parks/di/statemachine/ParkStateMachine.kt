@@ -44,13 +44,13 @@ class ParksStateMachine(
         ) : UiIntent()
     }
 
-    private val _intents = MutableSharedFlow<UiIntent>(extraBufferCapacity = 1)
+    private val intents = MutableSharedFlow<UiIntent>(extraBufferCapacity = 1)
 
     val uiStateFlow: StateFlow<UiState>
 
     init {
         uiStateFlow =
-            _intents
+            intents
                 .flatMapLatest { intent ->
                     when (intent) {
                         is UiIntent.GetLocation -> {
@@ -82,84 +82,81 @@ class ParksStateMachine(
     }
 
     fun processIntent(intent: UiIntent) {
-        _intents.tryEmit(intent)
+        intents.tryEmit(intent)
     }
 
-    private fun getLocationFlow(): Flow<UiState> =
-        flow {
-            try {
-                emit(
-                    UiState(
-                        userLocation = getCurrentLocation(),
-                    ),
-                )
-            } catch (e: Exception) {
-                Log.e("ParksStateMachine", "Error getting location: ${e.message}", e)
-                throw e
-            }
+    private fun getLocationFlow(): Flow<UiState> = flow {
+        try {
+            emit(
+                UiState(
+                    userLocation = getCurrentLocation(),
+                ),
+            )
+        } catch (e: Exception) {
+            Log.e("ParksStateMachine", "Error getting location: ${e.message}", e)
+            throw e
         }
+    }
 
     private fun fetchParksFlow(
         latitude: Double,
         longitude: Double,
         radius: Int,
-    ): Flow<UiState> =
-        flow {
-            emit(UiState(loading = true))
-            try {
-                val pinList =
-                    getNearbyParks(
-                        latitude,
-                        longitude,
-                        radius,
-                    )
-                if (!pinList.isNullOrEmpty()) {
-                    emit(
-                        UiState(
-                            pinList = pinList,
-                            loading = false,
-                            error = null,
-                        ),
-                    )
-                } else {
-                    emit(UiState(error = "No parks found", loading = false))
-                }
-            } catch (e: Exception) {
-                Log.e("ParksStateMachine", "Error fetching pins: ${e.message}", e)
-                emit(UiState(error = "Error fetching pins: ${e.message}", loading = false))
+    ): Flow<UiState> = flow {
+        emit(UiState(loading = true))
+        try {
+            val pinList =
+                getNearbyParks(
+                    latitude,
+                    longitude,
+                    radius,
+                )
+            if (!pinList.isNullOrEmpty()) {
+                emit(
+                    UiState(
+                        pinList = pinList,
+                        loading = false,
+                        error = null,
+                    ),
+                )
+            } else {
+                emit(UiState(error = "No parks found", loading = false))
             }
+        } catch (e: Exception) {
+            Log.e("ParksStateMachine", "Error fetching pins: ${e.message}", e)
+            emit(UiState(error = "Error fetching pins: ${e.message}", loading = false))
         }
+    }
 
-    private fun fetchParkByIdListFlow(parkIdList: List<String>): Flow<UiState> =
-        flow {
-            emit(UiState(loading = true))
-            try {
-                val parks = getParksById(parkIdList)
-                if (parks.isNullOrEmpty()) {
-                    emit(UiState(error = "No parks found by ID", loading = false))
-                } else {
-                    val currentLocation = getCurrentLocation()
-                    emit(
-                        UiState(
-                            parkItemList =
-                                parks
-                                    .map { park ->
-                                        val distance =
-                                            distanceBetweenPoints(
-                                                LatLng(currentLocation.latitude, currentLocation.longitude),
-                                                LatLng(park.location.latitude.toDouble(), park.location.longitude.toDouble()),
-                                            )
-                                        ParkItem.fromPark(park, distance.toInt())
-                                    }.sortedBy { it.distanceFromUser },
-                            loading = false,
-                        ),
-                    )
-                }
-            } catch (e: Exception) {
-                Log.e("ParksStateMachine", "Error fetching parks by ID: ${e.message}", e)
-                emit(UiState(error = "Error fetching parks by ID: ${e.message}", loading = false))
+    private fun fetchParkByIdListFlow(parkIdList: List<String>): Flow<UiState> = flow {
+        emit(UiState(loading = true))
+        try {
+            val parks = getParksById(parkIdList)
+            if (parks.isNullOrEmpty()) {
+                emit(UiState(error = "No parks found by ID", loading = false))
+            } else {
+                val currentLocation = getCurrentLocation()
+                emit(
+                    UiState(
+                        parkItemList =
+                            parks
+                                .map { park ->
+                                    val distance =
+                                        distanceBetweenPoints(
+                                            LatLng(currentLocation.latitude, currentLocation.longitude),
+                                            LatLng(park.location.latitude.toDouble(), park.location.longitude.toDouble()),
+                                        )
+                                    ParkItem.fromPark(park, distance.toInt())
+                                }.sortedBy { it.distanceFromUser },
+                        loading = false,
+                    ),
+                )
             }
+        } catch (e: Exception) {
+            Log.e("ParksStateMachine", "Error fetching parks by ID: ${e.message}", e)
+            emit(UiState(error = "Error fetching parks by ID: ${e.message}", loading = false))
         }
+    }
 }
 
 fun distanceBetweenPoints(

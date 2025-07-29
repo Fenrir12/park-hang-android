@@ -11,9 +11,7 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 object UserCredentialsDataSourceModule {
     @Provides
-    fun providesUserCredentialsDataSource(
-        userCredentialsPreferencesStore: DataStore<UserCredentialsPreferences>,
-    ): UserCredentialsDatasource =
+    fun providesUserCredentialsDataSource(userCredentialsPreferencesStore: DataStore<UserCredentialsPreferences>): UserCredentialsDatasource =
         UserCredentialsDatasource(
             userCredentialsPreferencesStore = userCredentialsPreferencesStore,
         )

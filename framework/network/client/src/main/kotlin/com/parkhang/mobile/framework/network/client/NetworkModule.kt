@@ -16,8 +16,7 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun providesBaseHttpClient(baseHttpEngine: BaseHttpEngine): BaseHttpClient =
-        BaseHttpClient(
-            baseHttpEngine = baseHttpEngine,
-        )
+    fun providesBaseHttpClient(baseHttpEngine: BaseHttpEngine): BaseHttpClient = BaseHttpClient(
+        baseHttpEngine = baseHttpEngine,
+    )
 }

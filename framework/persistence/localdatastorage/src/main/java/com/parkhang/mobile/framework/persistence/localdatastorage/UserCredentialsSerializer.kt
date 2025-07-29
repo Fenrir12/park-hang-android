@@ -15,12 +15,11 @@ class UserCredentialsSerializer(
 ) : Serializer<UserCredentialsPreferences> {
     override val defaultValue: UserCredentialsPreferences = UserCredentialsPreferences.getDefaultInstance()
 
-    override suspend fun readFrom(input: InputStream): UserCredentialsPreferences =
-        try {
-            UserCredentialsPreferences.parseFrom(decrypt(input))
-        } catch (exception: Exception) {
-            throw CorruptionException("Cannot read proto.", exception)
-        }
+    override suspend fun readFrom(input: InputStream): UserCredentialsPreferences = try {
+        UserCredentialsPreferences.parseFrom(decrypt(input))
+    } catch (exception: Exception) {
+        throw CorruptionException("Cannot read proto.", exception)
+    }
 
     override suspend fun writeTo(
         t: UserCredentialsPreferences,

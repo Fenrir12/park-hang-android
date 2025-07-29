@@ -24,52 +24,51 @@ class AuthenticationFrameworkModule {
         @Dispatcher(PHDispatchers.IO) ioDispatcher: CoroutineDispatcher,
         authenticationClient: AuthenticationClient,
         userCredentialsDatasource: UserCredentialsDatasource,
-    ): AuthenticationFramework =
-        AuthenticationFramework(
-            ioDispatcher = ioDispatcher,
-            onSignUp = { credentials ->
-                authenticationClient
-                    .signUp(credentials)
-                    .mapCatching { payload ->
-                        Log.d("AuthenticationFramework", "Sign up successful")
-                        val authToken = payload.token.decodeJwt()
-                        userCredentialsDatasource.updateUserCredentials(authToken)
-                        authToken.user ?: throw IllegalStateException("User not found in token")
-                    }.getOrElse { throwable ->
-                        Log.e("AuthenticationFramework", "Sign up failed", throwable)
-                        UserProfile.empty() // or a default user object on failure
-                    }
-            },
-            onLogin = { credentials ->
-                authenticationClient
-                    .login(credentials)
-                    .mapCatching { payload ->
-                        Log.d("AuthenticationFramework", "Log in successful")
-                        val authToken = payload.token.decodeJwt()
-                        userCredentialsDatasource.updateUserCredentials(authToken)
-                        authToken.user ?: throw IllegalStateException("User not found in token")
-                    }.getOrElse { throwable ->
-                        Log.e("AuthenticationFramework", "Sign up failed", throwable)
-                        UserProfile.empty() // or a default user object on failure
-                    }
-            },
-            onLogout = {
-                Log.d("AuthenticationFramework", "Logging out")
-                userCredentialsDatasource.deleteUserCredentials()
-            },
-            getIsUserLoggedIn = {
-                userCredentialsDatasource.getUserAuthToken().first()?.let { token ->
-                    val now = LocalDate.now(ZoneId.of("UTC"))
-                    val expires =
-                        token.expiresAt
-                            .toInstant()
-                            .atZone(ZoneId.of("UTC"))
-                            .toLocalDate()
-                    token.accessToken.isNotEmpty() && expires.isAfter(now) && token.user != null
-                } ?: run {
-                    Log.d("AuthenticationFramework", "No user credentials found, user is not logged in")
-                    false
+    ): AuthenticationFramework = AuthenticationFramework(
+        ioDispatcher = ioDispatcher,
+        onSignUp = { credentials ->
+            authenticationClient
+                .signUp(credentials)
+                .mapCatching { payload ->
+                    Log.d("AuthenticationFramework", "Sign up successful")
+                    val authToken = payload.token.decodeJwt()
+                    userCredentialsDatasource.updateUserCredentials(authToken)
+                    authToken.user ?: throw IllegalStateException("User not found in token")
+                }.getOrElse { throwable ->
+                    Log.e("AuthenticationFramework", "Sign up failed", throwable)
+                    UserProfile.empty() // or a default user object on failure
                 }
-            },
-        )
+        },
+        onLogin = { credentials ->
+            authenticationClient
+                .login(credentials)
+                .mapCatching { payload ->
+                    Log.d("AuthenticationFramework", "Log in successful")
+                    val authToken = payload.token.decodeJwt()
+                    userCredentialsDatasource.updateUserCredentials(authToken)
+                    authToken.user ?: throw IllegalStateException("User not found in token")
+                }.getOrElse { throwable ->
+                    Log.e("AuthenticationFramework", "Sign up failed", throwable)
+                    UserProfile.empty() // or a default user object on failure
+                }
+        },
+        onLogout = {
+            Log.d("AuthenticationFramework", "Logging out")
+            userCredentialsDatasource.deleteUserCredentials()
+        },
+        getIsUserLoggedIn = {
+            userCredentialsDatasource.getUserAuthToken().first()?.let { token ->
+                val now = LocalDate.now(ZoneId.of("UTC"))
+                val expires =
+                    token.expiresAt
+                        .toInstant()
+                        .atZone(ZoneId.of("UTC"))
+                        .toLocalDate()
+                token.accessToken.isNotEmpty() && expires.isAfter(now) && token.user != null
+            } ?: run {
+                Log.d("AuthenticationFramework", "No user credentials found, user is not logged in")
+                false
+            }
+        },
+    )
 }
