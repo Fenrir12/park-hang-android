@@ -39,4 +39,9 @@ class ParksViewModel
                 ),
             )
         }
+
+        fun getParkById(parkId: String) {
+            throw Exception("Test exception for crashlytics")
+            // TODO: Implement this method to fetch a park by its ID
+        }
     }

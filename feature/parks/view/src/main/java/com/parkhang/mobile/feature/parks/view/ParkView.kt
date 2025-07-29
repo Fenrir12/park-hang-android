@@ -91,6 +91,7 @@ fun ParkView(
                 searchRadius = onGetVisibleCameraRadius(cameraPositionState),
             )
         },
+        onParkClicked = viewModel::getParkById,
         currentLocation =
             uiState.userLocation?.let {
                 LatLng(
@@ -109,6 +110,7 @@ fun ParkScreen(
     parkItemList: List<ParkItem>,
     cameraPositionState: CameraPositionState,
     onRequestNearbyParks: () -> Unit,
+    onParkClicked: (String) -> Unit,
     modifier: Modifier = Modifier,
     currentLocation: LatLng? = null,
     coroutineScope: CoroutineScope,
@@ -136,6 +138,7 @@ fun ParkScreen(
                     Modifier
                         .fillMaxSize(),
                 parkItemList = parkItemList,
+                onParkClicked = onParkClicked,
             )
         },
     ) {
@@ -190,6 +193,7 @@ fun ParkScreen(
 @Composable
 fun ParkDrawerContent(
     parkItemList: List<ParkItem>,
+    onParkClicked: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val lazyListState = rememberLazyListState()
@@ -233,7 +237,7 @@ fun ParkDrawerContent(
                             parkId = parkItem.id,
                             parkName = name,
                             parkDistance = parkItem.distanceFromUser,
-                            onParkCardClicked = { }, // TODO: Implement park click action
+                            onParkCardClicked = onParkClicked, // TODO: Implement park click action
                         )
                     }
                 }
@@ -272,6 +276,7 @@ fun ParkScreenPreview() {
                     distanceFromUser = 1500,
                 ),
             ),
+        onParkClicked = { _ -> },
     )
 }
 
