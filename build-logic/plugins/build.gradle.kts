@@ -75,4 +75,11 @@ gradlePlugin {
             implementationClass = "ComposeCompilerPlugin"
         }
     }
+
+    plugins {
+        register("parkhang.crashlytics") {
+            id = name
+            implementationClass = "AndroidCrashlyticsPlugin"
+        }
+    }
 }

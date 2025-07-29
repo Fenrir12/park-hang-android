@@ -4,6 +4,8 @@ plugins {
     id("parkhang.hilt")
     id("parkhang.common")
     id("parkhang.composeCompiler")
+    id("parkhang.crashlytics")
+    alias(libs.plugins.firebase.distribution)
 }
 
 android {
@@ -29,6 +31,11 @@ android {
     }
 
     buildTypes {
+        defaultConfig {
+            firebaseAppDistribution {
+                artifactType = "AAB"
+            }
+        }
         getByName("debug") {
             applicationIdSuffix = ".dev"
             signingConfig = signingConfigs.getByName("debug")

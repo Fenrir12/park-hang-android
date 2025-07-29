@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize) apply false
     jacoco
     alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.firebase.crashlytics) apply false
 }
 
 tasks {

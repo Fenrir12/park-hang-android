@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "245899623921",
+    "project_id": "park-hang-dev",
+    "storage_bucket": "park-hang-dev.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:245899623921:android:258a128f0ff2da646ad850",
+        "android_client_info": {
+          "package_name": "com.parkhang.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDz1eoDaSMu0e1Hr90Rd25_rf47_HIZXio"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:245899623921:android:8c082deb52f8807d6ad850",
+        "android_client_info": {
+          "package_name": "com.parkhang.mobile.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDz1eoDaSMu0e1Hr90Rd25_rf47_HIZXio"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
