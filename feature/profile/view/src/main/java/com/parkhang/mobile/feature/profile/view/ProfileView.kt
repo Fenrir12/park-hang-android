@@ -18,6 +18,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.parkhang.core.designsystem.layout.Padding
 import com.parkhang.core.designsystem.theme.CustomColors
 import com.parkhang.mobile.core.userprofile.entity.UserProfileInfo
+import com.parkhang.mobile.feature.profile.di.statemachine.PasswordFormErrorCode
+import com.parkhang.mobile.feature.profile.di.statemachine.SignUpFormErrorCode
 import com.parkhang.mobile.feature.profile.view.components.AnonymousProfileContent
 import com.parkhang.mobile.feature.profile.view.components.AuthenticatedProfileContent
 
@@ -35,6 +37,9 @@ fun ProfileView(
         isUserLoggedIn = uiState.isLoggedIn == true,
         email = uiState.userProfileInfo?.email ?: "",
         profileName = uiState.userProfileInfo?.profileName ?: uiState.userProfileInfo?.email ?: "",
+        onPasswordEdited = viewModel::validatePassword,
+        passwordFormErrorCodeList = uiState.passwordErrorCodeList,
+        formErrorCode = uiState.formErrorCode,
         onSignupClicked = viewModel::validateSignUpForm,
         onLoginClicked = viewModel::login,
         onLogoutClicked = viewModel::logout,
@@ -46,10 +51,13 @@ fun ProfileScreen(
     isUserLoggedIn: Boolean,
     email: String,
     profileName: String,
+    onPasswordEdited: (String) -> Unit,
     onSignupClicked: (newUserFormInfo: UserProfileInfo, password: String, confirmPassword: String) -> Unit,
     onLoginClicked: (email: String, password: String) -> Unit,
     onLogoutClicked: () -> Unit,
     modifier: Modifier = Modifier,
+    passwordFormErrorCodeList: List<PasswordFormErrorCode> = emptyList(),
+    formErrorCode: SignUpFormErrorCode? = null,
 ) {
     Box(
         modifier =
@@ -68,6 +76,9 @@ fun ProfileScreen(
             isUserLoggedIn = isUserLoggedIn,
             email = email,
             profileName = profileName,
+            onPasswordEdited = onPasswordEdited,
+            passwordFormErrorCodeList = passwordFormErrorCodeList,
+            formErrorCode = formErrorCode,
             onSignupClicked = onSignupClicked,
             onLoginClicked = onLoginClicked,
             onLogoutClicked = onLogoutClicked,
@@ -80,6 +91,9 @@ fun ProfileContent(
     isUserLoggedIn: Boolean,
     email: String,
     profileName: String,
+    onPasswordEdited: (String) -> Unit,
+    passwordFormErrorCodeList: List<PasswordFormErrorCode>,
+    formErrorCode: SignUpFormErrorCode?,
     onSignupClicked: (newUserFormInfo: UserProfileInfo, password: String, confirmPassword: String) -> Unit,
     onLoginClicked: (email: String, password: String) -> Unit,
     onLogoutClicked: () -> Unit,
@@ -94,6 +108,9 @@ fun ProfileContent(
     ) {
         if (!isUserLoggedIn) {
             AnonymousProfileContent(
+                onPasswordEdited = onPasswordEdited,
+                passwordFormErrorCodeList = passwordFormErrorCodeList,
+                formErrorCode = formErrorCode,
                 onSignupClicked = onSignupClicked,
                 onLoginClicked = onLoginClicked,
             )
@@ -111,6 +128,7 @@ fun ProfileContent(
 @Composable
 fun ProfileViewUnauthenticatedPreview() {
     ProfileScreen(
+        onPasswordEdited = { },
         onSignupClicked = { _, _, _ -> },
         onLoginClicked = { _, _ -> },
         onLogoutClicked = { },
@@ -127,6 +145,7 @@ fun ProfileViewUnauthenticatedPreview() {
 @Composable
 fun ProfileViewAuthenticatedPreview() {
     ProfileScreen(
+        onPasswordEdited = { },
         onSignupClicked = { _, _, _ -> },
         onLoginClicked = { _, _ -> },
         onLogoutClicked = { },

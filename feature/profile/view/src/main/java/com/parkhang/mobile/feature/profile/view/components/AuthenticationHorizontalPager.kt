@@ -6,10 +6,15 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.parkhang.mobile.core.userprofile.entity.UserProfileInfo
+import com.parkhang.mobile.feature.profile.di.statemachine.PasswordFormErrorCode
+import com.parkhang.mobile.feature.profile.di.statemachine.SignUpFormErrorCode
 
 @Composable
 fun AuthenticationHorizontalPager(
     pagerState: PagerState,
+    onPasswordEdited: (String) -> Unit,
+    passwordFormErrorCodeList: List<PasswordFormErrorCode>,
+    formErrorCode: SignUpFormErrorCode?,
     onSignupClicked: (newUserFormInfo: UserProfileInfo, password: String, confirmPassword: String) -> Unit,
     onLoginClicked: (email: String, password: String) -> Unit,
     modifier: Modifier = Modifier,
@@ -28,7 +33,10 @@ fun AuthenticationHorizontalPager(
             }
             AuthenticationPage.SIGNUP.value -> {
                 SignUpContent(
+                    onPasswordEdited = onPasswordEdited,
+                    passwordFormErrorCodeList = passwordFormErrorCodeList,
                     onSignupClicked = onSignupClicked,
+                    formErrorCode = formErrorCode,
                 )
             }
         }

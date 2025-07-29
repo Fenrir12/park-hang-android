@@ -14,6 +14,14 @@ class ProfileViewModel
     ) : ViewModel() {
         val uiStateFlow = profileStateMachine.uiStateFlow
 
+        fun validatePassword(password: String) {
+            profileStateMachine.processIntent(
+                ProfileStateMachine.UiIntent.ValidatePassword(
+                    password = password,
+                ),
+            )
+        }
+
         fun validateSignUpForm(
             newUserFormInfo: UserProfileInfo,
             password: String,

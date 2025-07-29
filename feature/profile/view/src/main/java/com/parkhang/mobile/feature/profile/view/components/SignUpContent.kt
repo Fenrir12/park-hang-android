@@ -5,14 +5,22 @@ import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,15 +28,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.parkhang.core.designsystem.layout.Layout
+import com.parkhang.core.designsystem.layout.Padding
 import com.parkhang.core.designsystem.theme.CustomColors
 import com.parkhang.core.designsystem.typography.CustomTextStyle
 import com.parkhang.mobile.core.designsystem.components.FormField
 import com.parkhang.mobile.core.designsystem.components.NAVIGATION_BAR_HEIGHT_DP
 import com.parkhang.mobile.core.userprofile.entity.UserProfileInfo
+import com.parkhang.mobile.feature.profile.di.statemachine.PasswordFormErrorCode
+import com.parkhang.mobile.feature.profile.di.statemachine.SignUpFormErrorCode
 
 @Composable
 fun SignUpContent(
+    onPasswordEdited: (String) -> Unit,
+    passwordFormErrorCodeList: List<PasswordFormErrorCode>,
+    formErrorCode: SignUpFormErrorCode?,
     onSignupClicked: (UserProfileInfo, String, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -45,12 +60,44 @@ fun SignUpContent(
     val password = remember { mutableStateOf("") }
     val confirmPassword = remember { mutableStateOf("") }
 
+    val isPasswordFocused = remember { mutableStateOf(false) }
+
+    val imeInsets = WindowInsets.ime
+    val imeBottomPaddingDp = imeInsets.asPaddingValues().calculateBottomPadding()
+    val isImeVisible = imeBottomPaddingDp > 0.dp
+
+    val emailBringIntoViewRequester = remember { BringIntoViewRequester() }
+    val passwordBringIntoViewRequester = remember { BringIntoViewRequester() }
+
+    LaunchedEffect(isImeVisible) {
+        if (isPasswordFocused.value && isImeVisible) {
+            scrollState.animateScrollTo(
+                value = scrollState.maxValue,
+            )
+        }
+    }
+
+    LaunchedEffect(formErrorCode) {
+        when (formErrorCode) {
+            SignUpFormErrorCode.InvalidEmail -> {
+                emailBringIntoViewRequester.bringIntoView()
+            }
+            SignUpFormErrorCode.PasswordMismatch -> {
+                passwordBringIntoViewRequester.bringIntoView()
+            }
+            else -> {
+                // No action needed for other error codes
+            }
+        }
+    }
+
     Column(
         modifier =
             modifier
                 .fillMaxSize()
                 .verticalScroll(state = scrollState)
-                .padding(bottom = NAVIGATION_BAR_HEIGHT_DP),
+                .padding(bottom = NAVIGATION_BAR_HEIGHT_DP)
+                .imePadding(),
         verticalArrangement = spacedBy(Layout.Spacing.Small.L),
     ) {
         Column {
@@ -79,9 +126,19 @@ fun SignUpContent(
                     ),
             )
             FormField(
+                modifier =
+                    Modifier
+                        .bringIntoViewRequester(emailBringIntoViewRequester),
                 text = email,
                 onValueChanged = { email.value = it },
                 label = "Email*",
+                hasError = formErrorCode == SignUpFormErrorCode.InvalidEmail,
+                supportingText =
+                    if (formErrorCode == SignUpFormErrorCode.InvalidEmail) {
+                        "Please enter a valid email address."
+                    } else {
+                        ""
+                    },
             )
         }
 
@@ -104,6 +161,7 @@ fun SignUpContent(
                 label = "Last Name",
             )
         }
+
         Row(
             horizontalArrangement =
                 spacedBy(
@@ -156,22 +214,40 @@ fun SignUpContent(
         }
         FormField(
             text = password,
-            onValueChanged = { password.value = it },
+            onValueChanged = {
+                onPasswordEdited(it)
+                password.value = it
+            },
             label = "Password*",
             shouldShowText = false,
+            onFocusChanged = { isFocused ->
+                isPasswordFocused.value = isFocused
+            },
         )
         FormField(
+            modifier =
+                Modifier
+                    .bringIntoViewRequester(passwordBringIntoViewRequester),
             text = confirmPassword,
             onValueChanged = { confirmPassword.value = it },
             label = "Confirm password*",
             shouldShowText = false,
+            hasError = formErrorCode == SignUpFormErrorCode.PasswordMismatch,
+            supportingText =
+                if (formErrorCode == SignUpFormErrorCode.PasswordMismatch) {
+                    "Passwords do not match."
+                } else {
+                    ""
+                },
         )
-        Text(
-            text = "Password must be at least 6 characters long.",
-            style =
-                CustomTextStyle.Body5.copy(
-                    color = CustomColors.Transparencies.White,
-                ),
+        PasswordChecks(
+            passwordFormErrorCode = passwordFormErrorCodeList,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = Padding.Small.M,
+                    ),
         )
 
         Button(
@@ -191,6 +267,10 @@ fun SignUpContent(
                     )
                 onSignupClicked(form, password.value, confirmPassword.value)
             },
+            enabled =
+                email.value.isNotBlank() &&
+                    password.value.isNotBlank() &&
+                    confirmPassword.value.isNotBlank(),
             colors = ButtonDefaults.buttonColors(containerColor = CustomColors.Primary.DarkGreen),
         ) {
             Text(
@@ -226,6 +306,13 @@ fun SignUpContent(
 @Composable
 fun SignUpContentPreview() {
     SignUpContent(
+        onPasswordEdited = { },
+        passwordFormErrorCodeList =
+            listOf(
+                PasswordFormErrorCode.TooShort,
+                PasswordFormErrorCode.MissingNumber,
+            ),
         onSignupClicked = { _, _, _ -> },
+        formErrorCode = SignUpFormErrorCode.InvalidEmail,
     )
 }
