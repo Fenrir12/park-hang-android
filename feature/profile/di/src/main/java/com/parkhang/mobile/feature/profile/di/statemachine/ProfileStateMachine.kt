@@ -29,10 +29,21 @@ class ProfileStateMachine(
         val isSignUpFormValid: Boolean = false,
         val error: String? = null,
         val formErrorCode: SignUpFormErrorCode? = null,
+        val passwordErrorCodeList: List<PasswordFormErrorCode> =
+            listOf(
+                PasswordFormErrorCode.TooShort,
+                PasswordFormErrorCode.MissingSymbol,
+                PasswordFormErrorCode.MissingCapitalCharacter,
+                PasswordFormErrorCode.MissingNumber,
+            ),
     )
 
     sealed class UiIntent {
         data object CheckAuthentication : UiIntent()
+
+        data class ValidatePassword(
+            val password: String,
+        ) : UiIntent()
 
         data class ValidateSignUpForm(
             val newUserFormInfo: UserProfileInfo,
@@ -65,6 +76,10 @@ class ProfileStateMachine(
                     when (intent) {
                         is UiIntent.CheckAuthentication -> {
                             checkAuthenticationFlow()
+                        }
+
+                        is UiIntent.ValidatePassword -> {
+                            validatePasswordFlow(intent.password)
                         }
 
                         is UiIntent.ValidateSignUpForm -> {
@@ -104,6 +119,15 @@ class ProfileStateMachine(
                     previousState.copy(
                         isLoggedIn = newState.isLoggedIn ?: previousState.isLoggedIn,
                         userProfileInfo = newState.userProfileInfo ?: previousState.userProfileInfo,
+                        isSignUpFormValid = newState.isSignUpFormValid || previousState.isSignUpFormValid,
+                        error = newState.error ?: previousState.error,
+                        formErrorCode = newState.formErrorCode ?: previousState.formErrorCode,
+                        passwordErrorCodeList =
+                            if (newState.passwordErrorCodeList.isNotEmpty()) {
+                                newState.passwordErrorCodeList
+                            } else {
+                                previousState.passwordErrorCodeList
+                            },
                     )
                 }.stateIn(scope, SharingStarted.Eagerly, UiState())
     }
@@ -128,6 +152,43 @@ class ProfileStateMachine(
             }
         }
 
+    private fun validatePasswordFlow(password: String): Flow<UiState> =
+        flow {
+            val errors = mutableListOf<PasswordFormErrorCode>()
+
+            if (password.length < MINIMUM_PASSWORD_SIZE) {
+                errors.add(PasswordFormErrorCode.TooShort)
+            }
+
+            if (!password.any { !it.isLetterOrDigit() }) {
+                errors.add(PasswordFormErrorCode.MissingSymbol)
+            }
+
+            if (!password.any { it.isUpperCase() }) {
+                errors.add(PasswordFormErrorCode.MissingCapitalCharacter)
+            }
+
+            if (!password.any { it.isDigit() }) {
+                errors.add(PasswordFormErrorCode.MissingNumber)
+            }
+
+            if (errors.size > 1) {
+                emit(
+                    UiState(
+                        error = "Password must meet at least 3 of 4 rules",
+                        passwordErrorCodeList = errors,
+                    ),
+                )
+            } else {
+                emit(
+                    UiState(
+                        error = null,
+                        passwordErrorCodeList = emptyList(),
+                    ),
+                )
+            }
+        }
+
     private fun validateSigUpFormFlow(
         newUserFormInfo: UserProfileInfo,
         password: String,
@@ -135,15 +196,6 @@ class ProfileStateMachine(
     ): Flow<UiState> =
         flow {
             when {
-                newUserFormInfo.email.isBlank() || password.isBlank() || confirmPassword.isBlank() -> {
-                    emit(
-                        UiState(
-                            error = "Email and password fields cannot be empty",
-                            formErrorCode = SignUpFormErrorCode.UnknownError,
-                        ),
-                    )
-                }
-
                 !android.util.Patterns.EMAIL_ADDRESS
                     .matcher(newUserFormInfo.email)
                     .matches() -> {
@@ -151,15 +203,6 @@ class ProfileStateMachine(
                         UiState(
                             error = "Invalid email format",
                             formErrorCode = SignUpFormErrorCode.InvalidEmail,
-                        ),
-                    )
-                }
-
-                password.length < 6 -> {
-                    emit(
-                        UiState(
-                            error = "Password must be at least 6 characters",
-                            formErrorCode = SignUpFormErrorCode.PasswordTooShort,
                         ),
                     )
                 }
@@ -229,13 +272,19 @@ class ProfileStateMachine(
 }
 
 sealed class SignUpFormErrorCode {
-    object NONE : SignUpFormErrorCode()
-
     object InvalidEmail : SignUpFormErrorCode()
 
-    object PasswordTooShort : SignUpFormErrorCode()
-
     object PasswordMismatch : SignUpFormErrorCode()
-
-    object UnknownError : SignUpFormErrorCode()
 }
+
+sealed class PasswordFormErrorCode {
+    object TooShort : PasswordFormErrorCode()
+
+    object MissingSymbol : PasswordFormErrorCode()
+
+    object MissingCapitalCharacter : PasswordFormErrorCode()
+
+    object MissingNumber : PasswordFormErrorCode()
+}
+
+private const val MINIMUM_PASSWORD_SIZE = 6

@@ -13,17 +13,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.parkhang.core.designsystem.layout.Padding
 import com.parkhang.core.designsystem.theme.CustomColors
 import com.parkhang.mobile.core.userprofile.entity.UserProfileInfo
+import com.parkhang.mobile.feature.profile.di.statemachine.PasswordFormErrorCode
+import com.parkhang.mobile.feature.profile.di.statemachine.SignUpFormErrorCode
 import kotlinx.coroutines.launch
 
 @Composable
 fun AnonymousProfileContent(
+    passwordFormErrorCodeList: List<PasswordFormErrorCode>,
+    formErrorCode: SignUpFormErrorCode?,
+    onPasswordEdited: (String) -> Unit,
     onSignupClicked: (newUserFormInfo: UserProfileInfo, password: String, confirmPassword: String) -> Unit,
     onLoginClicked: (email: String, password: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val pagerState =
         rememberPagerState(
-            initialPage = AuthenticationPage.LOGIN.value,
+            initialPage = AuthenticationPage.SIGNUP.value,
             pageCount = { AuthenticationPage.entries.size },
         )
     val scope = rememberCoroutineScope()
@@ -49,8 +54,11 @@ fun AnonymousProfileContent(
         AuthenticationHorizontalPager(
             modifier = modifier,
             pagerState = pagerState,
+            onPasswordEdited = onPasswordEdited,
+            passwordFormErrorCodeList = passwordFormErrorCodeList,
             onSignupClicked = onSignupClicked,
             onLoginClicked = onLoginClicked,
+            formErrorCode = formErrorCode,
         )
     }
 }
@@ -64,6 +72,12 @@ fun AnonymousProfileContentPreview() {
                 .background(
                     color = CustomColors.Primary.LightGreen,
                 ).fillMaxSize(),
+        onPasswordEdited = { },
+        passwordFormErrorCodeList =
+            listOf(
+                PasswordFormErrorCode.MissingNumber,
+            ),
+        formErrorCode = null,
         onSignupClicked = { _, _, _ -> },
         onLoginClicked = { _, _ -> },
     )

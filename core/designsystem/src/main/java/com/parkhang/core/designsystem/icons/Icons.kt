@@ -17,6 +17,10 @@ object Icons {
         object Profile {
             val White: Int = R.drawable.icons_navigation_user_outlined
         }
+
+        object Dot {
+            val Black: Int = R.drawable.icons_dot_small
+        }
     }
 
     object Map {
