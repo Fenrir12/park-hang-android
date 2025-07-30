@@ -9,10 +9,10 @@ import io.ktor.http.HttpMethod
 import io.ktor.resources.Resource
 import javax.inject.Inject
 
-@Resource("/api/auth/signup")
+@Resource("/v1/auth/signup")
 data object SignUp
 
-@Resource("/api/auth/login")
+@Resource("/v1/auth/login")
 data object Login
 
 class AuthenticationClient

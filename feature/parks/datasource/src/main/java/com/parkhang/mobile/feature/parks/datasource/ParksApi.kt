@@ -10,14 +10,14 @@ import io.ktor.resources.Resource
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
-@Resource("/api/pins/nearby")
+@Resource("/v1/pins/nearby")
 data class NearbyParkPins(
     val lat: String,
     val lng: String,
     val radius: String,
 )
 
-@Resource("/api/parks")
+@Resource("/v1/parks")
 data class NearbyParksById(
     val limit: Int,
 )
