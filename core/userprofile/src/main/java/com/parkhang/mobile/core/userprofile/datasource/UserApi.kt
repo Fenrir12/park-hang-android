@@ -9,7 +9,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.resources.Resource
 import javax.inject.Inject
 
-@Resource("api/users/me")
+@Resource("/v1/users/me")
 object MeResource
 
 class UserApi
