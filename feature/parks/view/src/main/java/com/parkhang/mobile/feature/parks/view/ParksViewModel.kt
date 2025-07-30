@@ -12,7 +12,7 @@ class ParksViewModel
     constructor(
         private val parksStateMachine: ParksStateMachine,
     ) : ViewModel() {
-        val uiStateFlow = parksStateMachine.uiStateFlow
+        val uiStateFlow = parksStateMachine.parksStateFlow
 
         fun getUserLocation() {
             parksStateMachine.processIntent(

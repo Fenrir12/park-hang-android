@@ -1,29 +1,30 @@
 package com.parkhang.mobile.feature.parks.di.statemachine
 
-import android.util.Log
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.SphericalUtil
-import com.parkhang.mobile.feature.parks.entity.LatLong
-import com.parkhang.mobile.feature.parks.entity.Park
+import com.parkhang.mobile.core.common.entity.LatLong
+import com.parkhang.mobile.core.common.logStateTransitionsPretty
+import com.parkhang.mobile.feature.parks.di.statemachine.sideeffects.FetchParksByIdSideEffect
+import com.parkhang.mobile.feature.parks.di.statemachine.sideeffects.FetchParksNearbySideEffect
+import com.parkhang.mobile.feature.parks.di.statemachine.sideeffects.GetLocationSideEffect
 import com.parkhang.mobile.feature.parks.entity.ParkItem
 import com.parkhang.mobile.feature.parks.entity.Pin
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.serialization.Serializable
 
 class ParksStateMachine(
     scope: CoroutineScope,
-    private val getCurrentLocation: suspend () -> LatLong,
-    private val getNearbyParks: suspend (Double, Double, Int) -> List<Pin>?,
-    private val getParksById: suspend (parkIdList: List<String>) -> List<Park>?,
+    private val getLocationSideEffect: GetLocationSideEffect,
+    private val fetchParksNearbySideEffect: FetchParksNearbySideEffect,
+    private val fetchParksByIdSideEffect: FetchParksByIdSideEffect,
 ) {
-    data class UiState(
+    @Serializable
+    data class ParksState(
         val userLocation: LatLong? = null,
         val pinList: List<Pin> = emptyList(),
         val parkItemList: List<ParkItem> = emptyList(),
@@ -46,125 +47,29 @@ class ParksStateMachine(
 
     private val intents = MutableSharedFlow<UiIntent>(extraBufferCapacity = 1)
 
-    val uiStateFlow: StateFlow<UiState>
-
-    init {
-        uiStateFlow =
-            intents
-                .flatMapLatest { intent ->
-                    when (intent) {
-                        is UiIntent.GetLocation -> {
-                            getLocationFlow()
-                        }
-
-                        is UiIntent.FetchParkPinsNearby -> {
-                            fetchParksFlow(
-                                latitude = intent.cameraCenter.latitude,
-                                longitude = intent.cameraCenter.longitude,
-                                radius = intent.radius,
-                            )
-                        }
-
-                        is UiIntent.FetchParksByIdList -> {
-                            fetchParkByIdListFlow(
-                                parkIdList = intent.parkIdList,
-                            )
-                        }
-                    }
-                }.scan(UiState()) { previousState, newState ->
-                    previousState.copy(
-                        parkItemList = if (newState.parkItemList.isNotEmpty()) newState.parkItemList else previousState.parkItemList,
-                        pinList = if (newState.pinList.isNotEmpty()) newState.pinList else previousState.pinList,
-                        error = newState.error ?: previousState.error,
-                        userLocation = newState.userLocation ?: previousState.userLocation,
-                    )
-                }.stateIn(scope, SharingStarted.Eagerly, UiState())
-    }
-
     fun processIntent(intent: UiIntent) {
         intents.tryEmit(intent)
     }
 
-    private fun getLocationFlow(): Flow<UiState> = flow {
-        try {
-            emit(
-                UiState(
-                    userLocation = getCurrentLocation(),
-                ),
+    val parksStateFlow: StateFlow<ParksState> = intents
+        .flatMapLatest { intent ->
+            when (intent) {
+                is UiIntent.GetLocation -> getLocationSideEffect()
+                is UiIntent.FetchParkPinsNearby -> fetchParksNearbySideEffect(
+                    latitude = intent.cameraCenter.latitude,
+                    longitude = intent.cameraCenter.longitude,
+                    radius = intent.radius,
+                )
+
+                is UiIntent.FetchParksByIdList -> fetchParksByIdSideEffect(intent.parkIdList)
+            }
+        }.scan(ParksState()) { previous, next ->
+            previous.copy(
+                parkItemList = if (next.parkItemList.isNotEmpty()) next.parkItemList else previous.parkItemList,
+                pinList = if (next.pinList.isNotEmpty()) next.pinList else previous.pinList,
+                error = next.error ?: previous.error,
+                userLocation = next.userLocation ?: previous.userLocation,
             )
-        } catch (e: Exception) {
-            Log.e("ParksStateMachine", "Error getting location: ${e.message}", e)
-            throw e
-        }
-    }
-
-    private fun fetchParksFlow(
-        latitude: Double,
-        longitude: Double,
-        radius: Int,
-    ): Flow<UiState> = flow {
-        emit(UiState(loading = true))
-        try {
-            val pinList =
-                getNearbyParks(
-                    latitude,
-                    longitude,
-                    radius,
-                )
-            if (!pinList.isNullOrEmpty()) {
-                emit(
-                    UiState(
-                        pinList = pinList,
-                        loading = false,
-                        error = null,
-                    ),
-                )
-            } else {
-                emit(UiState(error = "No parks found", loading = false))
-            }
-        } catch (e: Exception) {
-            Log.e("ParksStateMachine", "Error fetching pins: ${e.message}", e)
-            emit(UiState(error = "Error fetching pins: ${e.message}", loading = false))
-        }
-    }
-
-    private fun fetchParkByIdListFlow(parkIdList: List<String>): Flow<UiState> = flow {
-        emit(UiState(loading = true))
-        try {
-            val parks = getParksById(parkIdList)
-            if (parks.isNullOrEmpty()) {
-                emit(UiState(error = "No parks found by ID", loading = false))
-            } else {
-                val currentLocation = getCurrentLocation()
-                emit(
-                    UiState(
-                        parkItemList =
-                            parks
-                                .map { park ->
-                                    val distance =
-                                        distanceBetweenPoints(
-                                            LatLng(currentLocation.latitude, currentLocation.longitude),
-                                            LatLng(park.location.latitude.toDouble(), park.location.longitude.toDouble()),
-                                        )
-                                    ParkItem.fromPark(park, distance.toInt())
-                                }.sortedBy { it.distanceFromUser },
-                        loading = false,
-                    ),
-                )
-            }
-        } catch (e: Exception) {
-            Log.e("ParksStateMachine", "Error fetching parks by ID: ${e.message}", e)
-            emit(UiState(error = "Error fetching parks by ID: ${e.message}", loading = false))
-        }
-    }
+        }.logStateTransitionsPretty("ParksState")
+        .stateIn(scope, SharingStarted.Eagerly, ParksState())
 }
-
-fun distanceBetweenPoints(
-    point1: LatLng,
-    point2: LatLng,
-): Double {
-    return SphericalUtil.computeDistanceBetween(point1, point2) // meters as Double
-}
-
-typealias Longitude = String
-typealias Latitude = String

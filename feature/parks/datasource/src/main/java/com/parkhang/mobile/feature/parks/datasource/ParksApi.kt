@@ -1,6 +1,6 @@
 package com.parkhang.mobile.feature.parks.datasource
 
-import com.parkhang.mobile.feature.parks.entity.Park
+import com.parkhang.mobile.core.common.entity.Park
 import com.parkhang.mobile.feature.parks.entity.Pin
 import com.parkhang.mobile.framework.network.client.NetworkClient
 import com.parkhang.mobile.framework.network.client.model.withResult
