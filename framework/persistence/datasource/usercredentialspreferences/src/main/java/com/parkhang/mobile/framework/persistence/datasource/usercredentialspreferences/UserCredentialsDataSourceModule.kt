@@ -14,5 +14,6 @@ object UserCredentialsDataSourceModule {
     fun providesUserCredentialsDataSource(userCredentialsPreferencesStore: DataStore<UserCredentialsPreferences>): UserCredentialsDatasource =
         UserCredentialsDatasource(
             userCredentialsPreferencesStore = userCredentialsPreferencesStore,
+            logError = { }, // TODO: Add error logging to crashlytics
         )
 }
