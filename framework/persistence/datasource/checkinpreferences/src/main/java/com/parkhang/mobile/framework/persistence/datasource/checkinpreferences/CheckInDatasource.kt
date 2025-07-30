@@ -31,8 +31,7 @@ class CheckInDatasource
                                     .setId(lastCheckIn.place.id)
                                     .setName(lastCheckIn.place.name)
                                     .setDescription(lastCheckIn.place.description),
-                            )
-                            .build(),
+                            ).build(),
                     ).build()
             }
         }
