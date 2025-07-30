@@ -11,9 +11,7 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 object CheckInDataSourceModule {
     @Provides
-    fun providesCheckInDatasource(
-        checkInPreferencesStore: DataStore<CheckInPreferences>,
-    ): CheckInDatasource = CheckInDatasource(
+    fun providesCheckInDatasource(checkInPreferencesStore: DataStore<CheckInPreferences>): CheckInDatasource = CheckInDatasource(
         checkInPreferencesStore = checkInPreferencesStore,
         logError = { }, // TODO: Add error logging to crashlytics
     )
