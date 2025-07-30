@@ -1,4 +1,4 @@
-package com.parkhang.mobile.feature.parks.entity
+package com.parkhang.mobile.core.common.entity
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

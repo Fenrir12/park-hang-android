@@ -1,5 +1,7 @@
 package com.parkhang.mobile.feature.parks.entity
 
+import com.parkhang.mobile.core.common.entity.Geometry
+import com.parkhang.mobile.core.common.entity.LatLong
 import kotlinx.serialization.Serializable
 
 @Serializable
