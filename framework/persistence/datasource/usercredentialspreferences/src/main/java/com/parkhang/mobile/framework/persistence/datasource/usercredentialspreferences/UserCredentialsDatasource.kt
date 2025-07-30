@@ -15,6 +15,7 @@ class UserCredentialsDatasource
     @Inject
     constructor(
         private val userCredentialsPreferencesStore: DataStore<UserCredentialsPreferences>,
+        private val logError: (Throwable) -> Unit,
     ) {
         val getUserAuthToken: suspend () -> Flow<UserAuthToken?> = {
             userCredentialsPreferencesStore.data
@@ -37,6 +38,7 @@ class UserCredentialsDatasource
                     }
                 }.catch { exception ->
                     if (exception is IOException) {
+                        logError(exception)
                         emit(UserAuthToken.empty())
                     } else {
                         throw exception
@@ -71,6 +73,7 @@ class UserCredentialsDatasource
                     }
             } catch (exception: IOException) {
                 Log.e("UserCredentialsDatasource", "Error updating user credentials", exception)
+                logError(exception)
             } catch (exception: Exception) {
                 Log.e("UserCredentialsDatasource", "Unexpected error updating user credentials", exception)
                 throw exception
