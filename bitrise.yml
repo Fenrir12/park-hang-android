@@ -80,6 +80,7 @@ workflows:
             $APP_BUILD_DESCRIPTION"
             - release_notes_length: '400'
             - app_path: "$BITRISE_APK_PATH"
+            - groups: devs
     envs:
       - VARIANT: debug
         opts:
