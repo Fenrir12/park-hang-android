@@ -11,6 +11,7 @@ dependencies {
     implementation(projects.feature.parks.di)
 
     implementation(projects.core.designsystem)
+    implementation(projects.core.designsystem.components)
     implementation(projects.core.checkin)
 
     implementation(libs.maps.compose)

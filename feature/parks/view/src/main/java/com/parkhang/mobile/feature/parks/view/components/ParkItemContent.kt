@@ -2,6 +2,7 @@ package com.parkhang.mobile.feature.parks.view.components
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.spacedBy
@@ -12,12 +13,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.parkhang.core.designsystem.layout.CornerRadius
 import com.parkhang.core.designsystem.layout.Padding
 import com.parkhang.core.designsystem.theme.CustomColors
 import com.parkhang.core.designsystem.typography.CustomTextStyle
+import com.parkhang.mobile.core.designsystem.components.conditional
 
 @SuppressLint("DefaultLocale")
 @Composable
@@ -25,8 +28,13 @@ fun ParkItemContent(
     parkId: String,
     parkName: String,
     parkDistance: Int,
+    isSelected: Boolean,
     onParkCardClicked: (String) -> Unit,
     modifier: Modifier = Modifier,
+    textColor: Color = CustomColors.Transparencies.White,
+    subTextColor: Color = CustomColors.Neutrals.White60,
+    selectedTextColor: Color = CustomColors.Transparencies.DarkGray,
+    selectedSubtextColor: Color = CustomColors.Transparencies.MediumGray,
 ) {
     Row(
         modifier =
@@ -35,9 +43,16 @@ fun ParkItemContent(
                 .clickable(
                     onClick = { onParkCardClicked(parkId) },
                 ).background(
-                    color = CustomColors.Primary.Green,
+                    color = if (isSelected) CustomColors.Primary.VeryLightGreen else CustomColors.Primary.Green,
                     shape = CornerRadius.Medium,
-                ),
+                ).conditional(isSelected) {
+                    Modifier
+                        .border(
+                            width = Padding.Small.Xs,
+                            color = CustomColors.Primary.DarkGreen,
+                            shape = CornerRadius.Medium,
+                        )
+                },
         horizontalArrangement = Arrangement.Start,
     ) {
         Column(
@@ -48,7 +63,8 @@ fun ParkItemContent(
         ) {
             Text(
                 text = parkName,
-                style = CustomTextStyle.Heading4.copy(color = CustomColors.Transparencies.White),
+                style = CustomTextStyle.Heading4
+                    .copy(color = if (isSelected) selectedTextColor else textColor),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier,
@@ -62,7 +78,8 @@ fun ParkItemContent(
                 }
             Text(
                 text = parkDistanceText,
-                style = CustomTextStyle.Body2.copy(color = CustomColors.Neutrals.White60),
+                style = CustomTextStyle.Body2
+                    .copy(color = if (isSelected) selectedSubtextColor else subTextColor),
                 modifier = Modifier,
             )
         }
@@ -77,6 +94,7 @@ fun ParkItemPreviewShort() {
         parkName = "Central Park",
         parkDistance = 245,
         onParkCardClicked = {},
+        isSelected = false,
     )
 }
 
@@ -88,5 +106,6 @@ fun ParkItemPreviewLong() {
         parkName = "Very long park name that exceeds the usual length",
         parkDistance = 1557,
         onParkCardClicked = {},
+        isSelected = true,
     )
 }

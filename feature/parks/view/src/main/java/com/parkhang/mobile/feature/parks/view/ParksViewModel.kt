@@ -19,7 +19,7 @@ class ParksViewModel
 
         fun getUserLocation() {
             parksStateMachine.processIntent(
-                ParksStateMachine.UiIntent.GetLocation,
+                ParksStateMachine.ParkIntent.GetLocation,
             )
         }
 
@@ -28,7 +28,7 @@ class ParksViewModel
             searchRadius: Int,
         ) {
             parksStateMachine.processIntent(
-                ParksStateMachine.UiIntent.FetchParkPinsNearby(
+                ParksStateMachine.ParkIntent.DidFetchParkPinsNearby(
                     cameraCenter = cameraCenter,
                     radius = searchRadius,
                 ),
@@ -37,7 +37,7 @@ class ParksViewModel
 
         fun fetchParkByIds(parkIdList: List<String>) {
             parksStateMachine.processIntent(
-                ParksStateMachine.UiIntent.FetchParksByIdList(
+                ParksStateMachine.ParkIntent.DidFetchParksByIdList(
                     parkIdList = parkIdList,
                 ),
             )
@@ -54,6 +54,20 @@ class ParksViewModel
         fun onCheckInPerformed() {
             checkInStateMachine.processIntent(
                 CheckInStateMachine.Intent.DidCompleteCheckIn,
+            )
+        }
+
+        fun onSelectPin(pinId: String) {
+            parksStateMachine.processIntent(
+                ParksStateMachine.ParkIntent.DidSelectPin(
+                    pinId = pinId,
+                ),
+            )
+        }
+
+        fun onUnselectPin() {
+            parksStateMachine.processIntent(
+                ParksStateMachine.ParkIntent.DidUnselectPin,
             )
         }
     }

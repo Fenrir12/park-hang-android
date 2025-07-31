@@ -36,7 +36,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.parkhang.core.designsystem.icons.Icons
 import com.parkhang.core.designsystem.layout.Layout
 import com.parkhang.core.designsystem.layout.Padding
 import com.parkhang.core.designsystem.theme.CustomColors
@@ -99,9 +98,9 @@ fun ParksView(
                 PinItem(
                     pin = pin,
                     pinZIndex = 1f,
-                    iconId = Icons.Map.Pin.Green,
                 )
             },
+        selectedPinId = uiState.selectedPinId,
         parkItemList = uiState.parkItemList,
         cameraPositionState = cameraPositionState,
         onRequestNearbyParks = {
@@ -119,6 +118,8 @@ fun ParksView(
                 )
             },
         onRequestUserLocation = viewModel::getUserLocation,
+        onPinItemSelected = viewModel::onSelectPin,
+        onMapClicked = viewModel::onUnselectPin,
         coroutineScope = scope,
         modifier = modifier,
     )
@@ -127,11 +128,14 @@ fun ParksView(
 @Composable
 fun ParkScreen(
     pinList: List<PinItem>,
+    selectedPinId: String?,
     parkItemList: List<ParkItem>,
     cameraPositionState: CameraPositionState,
     onRequestUserLocation: () -> Unit,
     onRequestNearbyParks: () -> Unit,
     onParkClicked: (String) -> Unit,
+    onPinItemSelected: (String) -> Unit,
+    onMapClicked: () -> Unit,
     modifier: Modifier = Modifier,
     currentLocation: LatLng? = null,
     coroutineScope: CoroutineScope,
@@ -160,6 +164,7 @@ fun ParkScreen(
                         .fillMaxSize(),
                 parkItemList = parkItemList,
                 onParkClicked = onParkClicked,
+                selectedPinId = selectedPinId,
             )
         },
     ) {
@@ -169,14 +174,19 @@ fun ParkScreen(
                     .fillMaxSize(),
             bottomPadding = SHEET_PEEK_HEIGHT,
             cameraPositionState = cameraPositionState,
-            onMapClick = { }, // TODO: Implement with pin selection feature
+            onMapClick = { _ ->
+                onMapClicked()
+            },
             onGetPinItemList = { pinList },
             onClusterClicked = { location ->
                 coroutineScope.launch {
                     onClusterClicked(cameraPositionState, location)
                 }
             },
-            onClusterItemClicked = { }, // TODO: Implement with pin selection feature
+            onClusterItemClicked = { pinItem ->
+                onPinItemSelected(pinItem.pinId)
+            },
+            selectedPinId = selectedPinId,
             onMoveToInitialLocation = { location ->
                 coroutineScope.launch {
                     try {
@@ -215,10 +225,20 @@ fun ParkScreen(
 @Composable
 fun ParkDrawerContent(
     parkItemList: List<ParkItem>,
+    selectedPinId: String?,
     onParkClicked: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val lazyListState = rememberLazyListState()
+
+    LaunchedEffect(selectedPinId) {
+        selectedPinId?.also {
+            val index = parkItemList.indexOfFirst { it.id == selectedPinId }
+            if (index != -1) {
+                lazyListState.animateScrollToItem(index)
+            }
+        }
+    }
     Box(
         modifier =
             modifier
@@ -259,7 +279,8 @@ fun ParkDrawerContent(
                             parkId = parkItem.id,
                             parkName = name,
                             parkDistance = parkItem.distanceFromUser,
-                            onParkCardClicked = onParkClicked, // TODO: Implement park click action
+                            onParkCardClicked = onParkClicked,
+                            isSelected = (parkItem.id == selectedPinId),
                         )
                     }
                 }
@@ -300,6 +321,9 @@ fun ParkScreenPreview() {
             ),
         onParkClicked = { _ -> },
         onRequestUserLocation = { },
+        onPinItemSelected = { _ -> },
+        onMapClicked = { },
+        selectedPinId = null,
     )
 }
 

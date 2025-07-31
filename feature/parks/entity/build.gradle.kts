@@ -8,6 +8,8 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.designsystem)
+
     implementation(libs.maps.compose)
     implementation(libs.maps.compose.utils)
 }
