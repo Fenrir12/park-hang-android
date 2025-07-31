@@ -81,6 +81,9 @@ workflows:
             - release_notes_length: '400'
             - app_path: "$BITRISE_APK_PATH"
             - groups: devs
+    triggers:
+      push:
+        - branch: main
     envs:
       - VARIANT: debug
         opts:
@@ -93,6 +96,10 @@ workflows:
     steps:
       - activate-ssh-key@4: {}
       - git-clone@8: {}
+      - activate-build-cache-for-gradle:
+      - set-java-version@1:
+          inputs:
+            - set_java_version: '21'
       - restore-gradle-cache@2: {}
       - install-missing-android-tools@3:
           inputs:
@@ -108,6 +115,10 @@ workflows:
                   -Pandroid.testInstrumentationRunnerArguments.shardIndex=$BITRISE_IO_PARALLEL_INDEX
       - save-gradle-cache@1: {}
       - deploy-to-bitrise-io@2: {}
+    envs:
+      - VARIANT: debug
+        opts:
+          is_expand: false
   run_tests:
     summary: Run your Android unit tests and get the test report.
     description: The workflow will first clone your Git repository, cache your
@@ -116,6 +127,10 @@ workflows:
     steps:
       - activate-ssh-key@4: {}
       - git-clone@8: {}
+      - activate-build-cache-for-gradle:
+      - set-java-version@1:
+          inputs:
+            - set_java_version: '21'
       - restore-gradle-cache@2: {}
       - install-missing-android-tools@3:
           inputs:
@@ -128,10 +143,12 @@ workflows:
       - save-gradle-cache@1: {}
       - deploy-to-bitrise-io@2: {}
     triggers:
-      push:
-        - branch: main
       pull_request:
         - source_branch: "*"
+    envs:
+      - VARIANT: debug
+        opts:
+          is_expand: false
 meta:
   bitrise.io:
     stack: linux-docker-android-22.04

@@ -1,5 +1,6 @@
 package com.parkhang.mobile.feature.parks.view
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,16 +52,34 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun ParkView(
+fun ParksView(
+    onCheckIn: (String, String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ParksViewModel = hiltViewModel(),
     scope: CoroutineScope = rememberCoroutineScope(),
 ) {
     val uiState by viewModel.uiStateFlow.collectAsState()
+    val checkInState by viewModel.checkInStateFlow.collectAsState()
+
     val cameraPositionState =
         rememberCameraPositionState {
             position = NORTH_AMERICA_CAMERA_POSITION
         }
+
+    LaunchedEffect(checkInState.checkInIsCompleted) {
+        val checkIn = checkInState.checkIn
+        if (checkIn != null && checkInState.checkInIsCompleted) {
+            viewModel.onCheckInPerformed()
+            onCheckIn(checkIn.currentParkView.id, checkIn.currentParkView.name)
+        }
+    }
+
+    LaunchedEffect(checkInState.checkInFailure) {
+        checkInState.checkInFailure?.let { failure ->
+            // TODO: Handle check-in failure appropriately, e.g., show a snackbar or dialog
+            Log.e("ParkView", "Check-in failed: $failure")
+        }
+    }
 
     LaunchedEffect(uiState.pinList) {
         if (uiState.pinList.isNotEmpty()) {
@@ -99,6 +118,7 @@ fun ParkView(
                     it.longitude,
                 )
             },
+        onRequestUserLocation = viewModel::getUserLocation,
         coroutineScope = scope,
         modifier = modifier,
     )
@@ -109,6 +129,7 @@ fun ParkScreen(
     pinList: List<PinItem>,
     parkItemList: List<ParkItem>,
     cameraPositionState: CameraPositionState,
+    onRequestUserLocation: () -> Unit,
     onRequestNearbyParks: () -> Unit,
     onParkClicked: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -184,6 +205,7 @@ fun ParkScreen(
                             shouldAnimate = true,
                         )
                     }
+                    onRequestUserLocation()
                 }
             },
         )
@@ -277,6 +299,7 @@ fun ParkScreenPreview() {
                 ),
             ),
         onParkClicked = { _ -> },
+        onRequestUserLocation = { },
     )
 }
 

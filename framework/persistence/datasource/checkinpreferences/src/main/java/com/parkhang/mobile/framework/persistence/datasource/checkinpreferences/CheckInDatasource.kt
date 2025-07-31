@@ -16,40 +16,42 @@ class CheckInDatasource
         private val checkInPreferencesStore: DataStore<CheckInPreferences>,
         private val logError: (Throwable) -> Unit,
     ) {
-        val updateLastCheckIn: suspend (lastCheckIn: LastCheckIn) -> Unit = { lastCheckIn ->
+        val updateLastCheckIn: suspend (lastCheckInPersistence: LastCheckInPersistence) -> Unit = { lastCheckIn ->
             checkInPreferencesStore.updateData { currentPreferences ->
                 currentPreferences
                     .toBuilder()
                     .setCheckIn(
                         CheckIn
                             .newBuilder()
+                            .setIsAnonymous(lastCheckIn.isAnonymous)
                             .setCurrentParkId(lastCheckIn.currentParkId)
                             .setTimestamp(lastCheckIn.timestamp)
                             .setPark(
                                 Park
                                     .newBuilder()
-                                    .setId(lastCheckIn.place.id)
-                                    .setName(lastCheckIn.place.name)
-                                    .setDescription(lastCheckIn.place.description),
+                                    .setId(lastCheckIn.park.id)
+                                    .setName(lastCheckIn.park.name)
+                                    .setDescription(lastCheckIn.park.website),
                             ).build(),
                     ).build()
             }
         }
 
-        val getLastCheckIn: Flow<LastCheckIn?> =
+        val getLastCheckInPersistence: Flow<LastCheckInPersistence?> =
             checkInPreferencesStore.data
                 .map {
                     if (it.checkIn.currentParkId.isNullOrBlank()) {
                         null
                     } else {
-                        LastCheckIn(
-                            it.checkIn.currentParkId,
-                            it.checkIn.timestamp,
-                            LastPark(
+                        LastCheckInPersistence(
+                            currentParkId = it.checkIn.currentParkId,
+                            timestamp = it.checkIn.timestamp,
+                            park = LastParkInPersistence(
                                 id = it.checkIn.park.id,
                                 name = it.checkIn.park.name,
-                                description = it.checkIn.park.description,
+                                website = it.checkIn.park.description,
                             ),
+                            isAnonymous = it.checkIn.isAnonymous,
                         )
                     }
                 }.catch { exception ->
@@ -65,46 +67,17 @@ class CheckInDatasource
                 checkIn.toBuilder().clear().build()
             }
         }
-
-        val getCurrentParkId: Flow<String> =
-            checkInPreferencesStore.data
-                .map {
-                    it.checkIn.currentParkId
-                }.catch { exception ->
-                    if (exception is IOException) {
-                        logError(exception)
-                        emit(CheckInPreferences.getDefaultInstance().checkIn.currentParkId)
-                    } else {
-                        throw exception
-                    }
-                }
-
-        val getParkName: Flow<String> =
-            checkInPreferencesStore.data
-                .map {
-                    it.checkIn.park.name
-                }.catch { exception ->
-                    if (exception is IOException) {
-                        logError(exception)
-                        emit(
-                            CheckInPreferences
-                                .getDefaultInstance()
-                                .checkIn.park.name,
-                        )
-                    } else {
-                        throw exception
-                    }
-                }
     }
 
-data class LastCheckIn(
+data class LastCheckInPersistence(
+    val isAnonymous: Boolean,
     val currentParkId: String,
     val timestamp: String,
-    val place: LastPark,
+    val park: LastParkInPersistence,
 )
 
-data class LastPark(
+data class LastParkInPersistence(
     val id: String,
     val name: String,
-    val description: String = "",
+    val website: String,
 )

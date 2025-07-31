@@ -45,6 +45,20 @@ internal object LocalDataStorageModule {
     ) {
         context.dataStoreFile(USER_CREDENTIALS_PREFS_FILE)
     }
+
+    @Provides
+    @Singleton
+    fun providesCheckInPreferencesDataStore(
+        @ApplicationContext context: Context,
+        @Dispatcher(PHDispatchers.IO) ioDispatcher: CoroutineDispatcher,
+        checkInPreferencesSerializer: CheckInPreferencesSerializer,
+    ): DataStore<CheckInPreferences> = DataStoreFactory.create(
+        serializer = checkInPreferencesSerializer,
+        scope = CoroutineScope(ioDispatcher + SupervisorJob()),
+    ) {
+        context.dataStoreFile(CHECK_IN_FILE)
+    }
 }
 
 const val USER_CREDENTIALS_PREFS_FILE = "user_credentials_prefs.pb"
+const val CHECK_IN_FILE = "checkin_preferences.pb"

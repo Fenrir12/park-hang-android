@@ -10,6 +10,14 @@ object Icons {
     object Navigation {
         val Exit: Int = R.drawable.icons_navigation_exit
 
+        object Back {
+            val outlined: Int = R.drawable.icons_navigation_back_outlined
+        }
+
+        object Options {
+            val outlined: Int = R.drawable.icons_chevron_down_outlined
+        }
+
         object Email {
             val White: Int = R.drawable.icons_navigation_email_white_filled
         }

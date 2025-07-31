@@ -10,7 +10,14 @@ import com.parkhang.mobile.feature.profile.di.statemachine.sideeffects.ValidateP
 import com.parkhang.mobile.feature.profile.di.statemachine.sideeffects.ValidateSignUpFormSideEffect
 import com.parkhang.mobile.framework.authentication.entity.UserCredentials
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.scan
+import kotlinx.coroutines.flow.stateIn
 
 class ProfileStateMachine(
     scope: CoroutineScope,

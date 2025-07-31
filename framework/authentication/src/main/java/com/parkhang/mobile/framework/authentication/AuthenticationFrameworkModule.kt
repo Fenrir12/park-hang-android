@@ -3,6 +3,8 @@ package com.parkhang.mobile.framework.authentication
 import android.util.Log
 import com.parkhang.mobile.core.common.Dispatcher
 import com.parkhang.mobile.core.common.PHDispatchers
+import com.parkhang.mobile.core.event.AppEventBus
+import com.parkhang.mobile.core.event.EventModule.AppEvent
 import com.parkhang.mobile.framework.persistence.datasource.usercredentialspreferences.UserCredentialsDatasource
 import com.parkhang.mobile.framework.persistence.datasource.usercredentialspreferences.UserProfile
 import dagger.Module
@@ -24,6 +26,7 @@ class AuthenticationFrameworkModule {
         @Dispatcher(PHDispatchers.IO) ioDispatcher: CoroutineDispatcher,
         authenticationClient: AuthenticationClient,
         userCredentialsDatasource: UserCredentialsDatasource,
+        appEventBus: AppEventBus,
     ): AuthenticationFramework = AuthenticationFramework(
         ioDispatcher = ioDispatcher,
         onSignUp = { credentials ->
@@ -55,6 +58,7 @@ class AuthenticationFrameworkModule {
         onLogout = {
             Log.d("AuthenticationFramework", "Logging out")
             userCredentialsDatasource.deleteUserCredentials()
+            appEventBus.emit(AppEvent.UserLoggedOut)
         },
         getIsUserLoggedIn = {
             userCredentialsDatasource.getUserAuthToken().first()?.let { token ->

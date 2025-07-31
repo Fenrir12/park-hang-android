@@ -11,6 +11,7 @@ message CheckIn {
   optional string currentParkId = 1;
   optional string timestamp = 2;
   optional Park park = 3;
+  optional bool isAnonymous = 4;
 }
 
 message Park {
