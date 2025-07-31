@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
@@ -62,6 +63,7 @@ import com.parkhang.core.designsystem.theme.CustomColors
 import com.parkhang.core.designsystem.theme.CustomColors.Neutrals.Black60
 import com.parkhang.core.designsystem.theme.CustomColors.Transparencies.White
 import com.parkhang.core.designsystem.theme.Opacity
+import com.parkhang.mobile.core.designsystem.components.conditional
 import com.parkhang.mobile.feature.parks.entity.PinItem
 import com.parkhang.mobile.feature.parks.view.CENTERED_ON_POSITION_DISTANCE
 import com.parkhang.mobile.feature.parks.view.NORTH_AMERICA_CAMERA_POSITION
@@ -83,6 +85,7 @@ fun MapScreen(
     onMoveToInitialLocation: (position: LatLng) -> Unit,
     onRequestNearbyParks: () -> Unit,
     onMyLocationClicked: () -> Unit,
+    selectedPinId: String?,
     modifier: Modifier = Modifier,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     currentLocation: LatLng? = null,
@@ -109,6 +112,7 @@ fun MapScreen(
         currentLocation = currentLocation,
         onMyLocationClicked = onMyLocationClicked,
         bottomPadding = bottomPadding,
+        selectedPinId = selectedPinId,
     )
 }
 
@@ -123,6 +127,7 @@ fun MapContent(
     onMyLocationClicked: () -> Unit,
     modifier: Modifier = Modifier,
     bottomPadding: Dp = 0.dp,
+    selectedPinId: String?,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     currentLocation: LatLng? = null,
 ) {
@@ -184,6 +189,7 @@ fun MapContent(
                 onClusterClicked = onClusterClicked,
                 onClusterItemClicked = onClusterItemClicked,
                 coroutineScope = coroutineScope,
+                selectedPinId = selectedPinId,
             )
             currentLocation?.let { location ->
                 MapMarker(position = location, iconResourceId = Icons.Map.Pin.Location)
@@ -254,6 +260,7 @@ fun CustomRendererClustering(
     onClusterClicked: (position: LatLng) -> Unit,
     onClusterItemClicked: (pinItem: PinItem) -> Unit,
     coroutineScope: CoroutineScope,
+    selectedPinId: String?,
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
@@ -284,7 +291,9 @@ fun CustomRendererClustering(
                 )
             },
             clusterItemContent = { pinItem ->
-                PinMarker(iconId = pinItem.iconId)
+                PinMarker(
+                    isSelectedPin = pinItem.pinId == selectedPinId,
+                )
             },
             clusterManager = clusterManager,
         )
@@ -322,13 +331,21 @@ fun CustomRendererClustering(
 
 @Composable
 private fun PinMarker(
-    iconId: Int,
     modifier: Modifier = Modifier,
+    isSelectedPin: Boolean = false,
 ) {
     Image(
-        painterResource(id = iconId),
+        painterResource(
+            id = if (isSelectedPin) Icons.Map.Pin.LightGreen else Icons.Map.Pin.Green,
+        ),
         contentDescription = "Selected map pin for a place with a jukebox",
-        modifier = modifier.zIndex(USER_MARKER_Z_INDEX),
+        modifier = modifier
+            .conditional(isSelectedPin) {
+                this.padding(
+                    all = Padding.Small.S,
+                )
+            }.scale(if (isSelectedPin) 1.3f else 1f)
+            .zIndex(USER_MARKER_Z_INDEX),
     )
 }
 
@@ -384,6 +401,7 @@ private fun MapScreenPreview() {
             coroutineScope = rememberCoroutineScope(),
             currentLocation = LatLng(0.0, 0.0),
             onMyLocationClicked = {},
+            selectedPinId = null,
         )
     }
 }

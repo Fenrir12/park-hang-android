@@ -34,6 +34,7 @@ object Icons {
     object Map {
         object Pin {
             val Green: Int = R.drawable.icons_map_pin_gradient_green
+            val LightGreen: Int = R.drawable.icons_map_pin_gradient_light_green
             val Location: Int = R.drawable.icons_map_pin_location
         }
 

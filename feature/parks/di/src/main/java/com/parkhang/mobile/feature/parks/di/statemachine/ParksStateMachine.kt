@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.Serializable
@@ -28,48 +29,85 @@ class ParksStateMachine(
         val userLocation: LatLong? = null,
         val pinList: List<Pin> = emptyList(),
         val parkItemList: List<ParkItem> = emptyList(),
+        val selectedPinId: String? = null,
         val error: String? = null,
         val loading: Boolean = false,
     )
 
-    sealed class UiIntent {
-        object GetLocation : UiIntent()
+    sealed class ParkIntent {
+        object GetLocation : ParkIntent()
 
-        data class FetchParkPinsNearby(
+        data class DidFetchParkPinsNearby(
             val radius: Int,
             val cameraCenter: LatLng,
-        ) : UiIntent()
+        ) : ParkIntent()
 
-        data class FetchParksByIdList(
+        data class DidFetchParksByIdList(
             val parkIdList: List<String>,
-        ) : UiIntent()
+        ) : ParkIntent()
+
+        data class DidSelectPin(
+            val pinId: String,
+        ) : ParkIntent()
+
+        data object DidUnselectPin : ParkIntent()
     }
 
-    private val intents = MutableSharedFlow<UiIntent>(extraBufferCapacity = 1)
+    private val intents = MutableSharedFlow<ParkIntent>(extraBufferCapacity = 1)
 
-    fun processIntent(intent: UiIntent) {
+    fun processIntent(intent: ParkIntent) {
         intents.tryEmit(intent)
     }
 
     val parksStateFlow: StateFlow<ParksState> = intents
         .flatMapLatest { intent ->
             when (intent) {
-                is UiIntent.GetLocation -> getLocationSideEffect()
-                is UiIntent.FetchParkPinsNearby -> fetchParksNearbySideEffect(
-                    latitude = intent.cameraCenter.latitude,
-                    longitude = intent.cameraCenter.longitude,
-                    radius = intent.radius,
-                )
-
-                is UiIntent.FetchParksByIdList -> fetchParksByIdSideEffect(intent.parkIdList)
+                is ParkIntent.GetLocation -> {
+                    getLocationSideEffect()
+                }
+                is ParkIntent.DidFetchParkPinsNearby -> {
+                    fetchParksNearbySideEffect(
+                        latitude = intent.cameraCenter.latitude,
+                        longitude = intent.cameraCenter.longitude,
+                        radius = intent.radius,
+                    )
+                }
+                is ParkIntent.DidFetchParksByIdList -> {
+                    fetchParksByIdSideEffect(intent.parkIdList)
+                }
+                is ParkIntent.DidSelectPin -> {
+                    selectPinQuickEffect(
+                        pinId = intent.pinId,
+                    )
+                }
+                is ParkIntent.DidUnselectPin -> {
+                    unselectPinQuickEffect()
+                }
             }
         }.scan(ParksState()) { previous, next ->
             previous.copy(
                 parkItemList = if (next.parkItemList.isNotEmpty()) next.parkItemList else previous.parkItemList,
                 pinList = if (next.pinList.isNotEmpty()) next.pinList else previous.pinList,
-                error = next.error ?: previous.error,
+                selectedPinId = next.selectedPinId,
                 userLocation = next.userLocation ?: previous.userLocation,
+                error = next.error ?: previous.error,
             )
         }.logStateTransitionsPretty("ParksState")
         .stateIn(scope, SharingStarted.Eagerly, ParksState())
+
+    private fun selectPinQuickEffect(pinId: String) = flow {
+        emit(
+            ParksState(
+                selectedPinId = pinId,
+            ),
+        )
+    }
+
+    private fun unselectPinQuickEffect() = flow {
+        emit(
+            ParksState(
+                selectedPinId = null,
+            ),
+        )
+    }
 }

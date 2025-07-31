@@ -39,6 +39,7 @@ object CustomColors {
         val DarkGreen = Color(0xFF1B5E20)
         val Green = Color(0xFF4CAF50)
         val LightGreen = Color(0xFF81C784)
+        val VeryLightGreen = Color(0xFFCCF0D1)
     }
 
     object Accent {
