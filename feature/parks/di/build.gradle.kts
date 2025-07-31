@@ -12,6 +12,7 @@ dependencies {
     implementation(projects.feature.parks.datasource)
 
     implementation(projects.core.common)
+    implementation(projects.core.checkin)
 
     implementation(projects.framework.geolocation)
 

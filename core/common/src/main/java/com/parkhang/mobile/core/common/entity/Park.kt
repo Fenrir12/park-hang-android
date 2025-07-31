@@ -15,6 +15,8 @@ data class Park(
         get() = properties.name
     val location: LatLong
         get() = LatLong(geometry.coordinates[1], geometry.coordinates[0])
+    val website: String?
+        get() = properties.website
 }
 
 @Serializable

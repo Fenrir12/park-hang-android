@@ -10,6 +10,7 @@ android {
 
 dependencies {
     implementation(projects.core.common)
+    implementation(projects.core.event)
 
     implementation(projects.framework.persistence.datasource.usercredentialspreferences)
     implementation(projects.framework.network.client)

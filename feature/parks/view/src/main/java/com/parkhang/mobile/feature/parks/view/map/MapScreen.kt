@@ -129,7 +129,7 @@ fun MapContent(
     var isMapReady by remember { mutableStateOf(false) }
 
     LaunchedEffect(cameraPositionState.position, cameraPositionState.isMoving, isMapReady) {
-        if (!cameraPositionState.isMoving && isMapReady) {
+        if (!cameraPositionState.isMoving && isMapReady && currentLocation != null) {
             cameraPositionState.projection?.visibleRegion?.latLngBounds?.let { _ ->
                 onRequestNearbyParks()
             }

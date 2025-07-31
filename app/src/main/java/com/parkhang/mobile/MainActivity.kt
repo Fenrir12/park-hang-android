@@ -1,6 +1,8 @@
 package com.parkhang.mobile
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,12 +18,17 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.parkhang.core.designsystem.theme.ParkHangTheme
+import com.parkhang.mobile.core.checkin.statemachine.CheckInStateMachine
 import com.parkhang.mobile.core.common.BottomNavItem
+import com.parkhang.mobile.core.common.HANGOUT_GRAPH_ROUTE
+import com.parkhang.mobile.core.common.PARKS_GRAPH_ROUTE
+import com.parkhang.mobile.core.common.PROFILE_GRAPH_ROUTE
 import com.parkhang.mobile.core.userprofile.datasource.UserProfileRepository
-import com.parkhang.mobile.feature.parks.view.navigateToParks
-import com.parkhang.mobile.feature.profile.view.navigateToProfile
 import com.parkhang.mobile.navigation.NavigationNavHost
 import com.parkhang.mobile.navigation.asTopLevelDestination
+import com.parkhang.mobile.navigation.graphs.navigateToHangoutGraph
+import com.parkhang.mobile.navigation.graphs.navigateToParksGraph
+import com.parkhang.mobile.navigation.graphs.navigateToProfileGraph
 import com.parkhang.mobile.ui.HomeView
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -31,14 +38,20 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var userProfileRepository: UserProfileRepository
 
+    @Inject
+    lateinit var checkInStateMachine: CheckInStateMachine
+
+    @SuppressLint("RestrictedApi", "StateFlowValueCalledInComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            var startDestination by remember { mutableStateOf(PARKS_ROUTE) }
+            var startDestination by remember { mutableStateOf(PARKS_GRAPH_ROUTE) }
             var navController = rememberNavController()
             val currentBackStack by navController.currentBackStackEntryAsState()
             val currentDestination = currentBackStack?.destination
+
+            Log.v("TEST", "Current backstack entry: ${navController.currentBackStack.value.map { it.destination.route }}")
 
             ParkHangTheme {
                 HomeView(
@@ -70,8 +83,9 @@ private fun navigateToTopLevelDestination(
 ) {
     val topLevelNavOptions = navOptions(navController)
     when (item.route) {
-        PARKS_ROUTE -> navController.navigateToParks(topLevelNavOptions)
-        PROFILE_ROUTE -> navController.navigateToProfile(topLevelNavOptions)
+        PARKS_GRAPH_ROUTE -> navController.navigateToParksGraph(topLevelNavOptions)
+        HANGOUT_GRAPH_ROUTE -> navController.navigateToHangoutGraph(topLevelNavOptions)
+        PROFILE_GRAPH_ROUTE -> navController.navigateToProfileGraph(topLevelNavOptions)
     }
 }
 
@@ -82,6 +96,3 @@ private fun navOptions(navController: NavController) = navOptions {
     launchSingleTop = true
     restoreState = true
 }
-
-const val PARKS_ROUTE = "parks"
-const val PROFILE_ROUTE = "profile"

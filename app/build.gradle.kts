@@ -16,7 +16,7 @@ android {
         applicationId = "com.parkhang.mobile"
         minSdk = libs.versions.minSdk.get().toInt()
         versionCode = 1
-        versionName = "1.0"
+        versionName = "0.2.0-alpha"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -64,17 +64,20 @@ dependencies {
     //region feature modules
     implementation(projects.feature.parks.view)
     implementation(projects.feature.profile.view)
+    implementation(projects.feature.hangout.view)
     //endregion
 
     //region core modules
     implementation(projects.core.designsystem)
     implementation(projects.core.designsystem.components)
     implementation(projects.core.userprofile)
+    implementation(projects.core.checkin)
     //endregion
 
     //region framework modules
     implementation(projects.framework.network.client)
     implementation(projects.framework.persistence.datasource.usercredentialspreferences)
+    implementation(projects.framework.persistence.datasource.checkinpreferences)
     implementation(projects.framework.persistence.localdatastorage)
     //endregion
 

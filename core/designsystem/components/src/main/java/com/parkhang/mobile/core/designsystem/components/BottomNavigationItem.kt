@@ -114,7 +114,7 @@ private fun PreviewBottomNavigationItem() {
                 .wrapContentSize(),
     ) {
         BottomNavigationItem(
-            item = BottomNavItem.Parks,
+            item = BottomNavItem.Hangout,
             onNavigationItemSelected = {},
             isSelected = true,
         )

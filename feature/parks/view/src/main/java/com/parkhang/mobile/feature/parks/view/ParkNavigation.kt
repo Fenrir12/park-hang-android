@@ -2,20 +2,15 @@ package com.parkhang.mobile.feature.parks.view
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 
-fun NavController.navigateToParks(navOptions: NavOptions? = null) {
-    this.navigate(ROUTE_PARKS, navOptions)
-}
-
-fun NavGraphBuilder.parkScreen() {
+fun NavGraphBuilder.parksScreen(onCheckIn: (String, String) -> Unit) {
     composable(
         route = ROUTE_PARKS,
     ) {
-        ParkView(
+        ParksView(
+            onCheckIn = onCheckIn,
             modifier =
                 Modifier
                     .fillMaxSize(),

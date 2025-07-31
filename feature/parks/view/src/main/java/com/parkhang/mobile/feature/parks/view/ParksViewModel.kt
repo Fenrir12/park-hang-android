@@ -2,6 +2,7 @@ package com.parkhang.mobile.feature.parks.view
 
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.LatLng
+import com.parkhang.mobile.core.checkin.statemachine.CheckInStateMachine
 import com.parkhang.mobile.feature.parks.di.statemachine.ParksStateMachine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -11,8 +12,10 @@ class ParksViewModel
     @Inject
     constructor(
         private val parksStateMachine: ParksStateMachine,
+        private val checkInStateMachine: CheckInStateMachine,
     ) : ViewModel() {
         val uiStateFlow = parksStateMachine.parksStateFlow
+        val checkInStateFlow = checkInStateMachine.didRequestCheckInStateFlow
 
         fun getUserLocation() {
             parksStateMachine.processIntent(
@@ -41,7 +44,16 @@ class ParksViewModel
         }
 
         fun getParkById(parkId: String) {
-            throw Exception("Test exception for crashlytics")
-            // TODO: Implement this method to fetch a park by its ID
+            checkInStateMachine.processIntent(
+                CheckInStateMachine.Intent.DidRequestCheckIn(
+                    parkId = parkId,
+                ),
+            )
+        }
+
+        fun onCheckInPerformed() {
+            checkInStateMachine.processIntent(
+                CheckInStateMachine.Intent.DidCompleteCheckIn,
+            )
         }
     }
